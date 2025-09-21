@@ -1,5 +1,6 @@
 package com.arthur.tarefas.model;
 
+import com.arthur.tarefas.enums.CategoriaTarefa;
 import com.arthur.tarefas.enums.PrioridadeTarefa;
 import com.arthur.tarefas.enums.StatusTarefa;
 import jakarta.persistence.*;
@@ -35,6 +36,9 @@ public class Tarefa {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private PrioridadeTarefa prioridade = PrioridadeTarefa.MEDIA;
+    
+    @Enumerated(EnumType.STRING)
+    private CategoriaTarefa categoria;
     
     @Column(name = "data_criacao")
     private LocalDateTime dataCriacao;

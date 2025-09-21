@@ -1,0 +1,191 @@
+<div class="min-h-screen bg-gray-50">
+  <!-- Header -->
+  <header class="bg-white shadow-sm border-b border-gray-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between items-center h-16">
+        <div class="flex items-center">
+          <button
+            (click)="router.navigate(['/tarefas'])"
+            class="text-gray-500 hover:text-gray-700 mr-4">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+            </svg>
+          </button>
+          <h1 class="text-xl font-semibold text-gray-900">Editar Tarefa</h1>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="max-w-2xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+    <div class="card">
+      <div class="card-header">
+        <h2 class="text-lg font-medium text-gray-900">Editar Tarefa</h2>
+        <p class="text-sm text-gray-500">Atualize os dados da tarefa abaixo.</p>
+      </div>
+
+      <form [formGroup]="tarefaForm" (ngSubmit)="onSubmit()" class="space-y-6">
+        <!-- Título -->
+        <div>
+          <label for="titulo" class="block text-sm font-medium text-gray-700">
+            Título *
+          </label>
+          <input
+            id="titulo"
+            type="text"
+            formControlName="titulo"
+            class="input-field mt-1"
+            placeholder="Digite o título da tarefa"
+            [class.border-red-500]="tarefaForm.get('titulo')?.invalid && tarefaForm.get('titulo')?.touched">
+          
+          <div *ngIf="tarefaForm.get('titulo')?.invalid && tarefaForm.get('titulo')?.touched" 
+               class="mt-1 text-sm text-red-600">
+            <div *ngIf="tarefaForm.get('titulo')?.errors?.['required']">
+              Título é obrigatório
+            </div>
+            <div *ngIf="tarefaForm.get('titulo')?.errors?.['minlength']">
+              Título deve ter pelo menos 3 caracteres
+            </div>
+          </div>
+        </div>
+
+        <!-- Descrição -->
+        <div>
+          <label for="descricao" class="block text-sm font-medium text-gray-700">
+            Descrição
+          </label>
+          <textarea
+            id="descricao"
+            formControlName="descricao"
+            rows="4"
+            class="input-field mt-1"
+            placeholder="Descreva a tarefa em detalhes (opcional)">
+          </textarea>
+        </div>
+
+        <!-- Status e Prioridade -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <label for="status" class="block text-sm font-medium text-gray-700">
+              Status *
+            </label>
+            <select
+              id="status"
+              formControlName="status"
+              class="input-field mt-1">
+              <option *ngFor="let status of status" [value]="status.value">
+                {{ status.label }}
+              </option>
+            </select>
+          </div>
+
+          <div>
+            <label for="prioridade" class="block text-sm font-medium text-gray-700">
+              Prioridade *
+            </label>
+            <select
+              id="prioridade"
+              formControlName="prioridade"
+              class="input-field mt-1">
+              <option *ngFor="let prioridade of prioridades" [value]="prioridade.value">
+                {{ prioridade.label }}
+              </option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Data de Vencimento e Categoria -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <label for="dataVencimento" class="block text-sm font-medium text-gray-700">
+              Data de Vencimento (Opcional)
+            </label>
+            <input
+              id="dataVencimento"
+              type="datetime-local"
+              formControlName="dataVencimento"
+              class="input-field mt-1">
+          </div>
+
+          <div>
+            <label for="categoria" class="block text-sm font-medium text-gray-700">
+              Categoria
+            </label>
+            <select
+              id="categoria"
+              formControlName="categoria"
+              class="input-field mt-1">
+              <option value="">Selecione uma categoria</option>
+              <option *ngFor="let categoria of categorias" [value]="categoria">
+                {{ categoria }}
+              </option>
+            </select>
+            
+            <!-- Campo para categoria customizada quando "Outros" for selecionado -->
+            <div *ngIf="tarefaForm.get('categoria')?.value === 'OUTROS'" class="mt-2">
+              <label for="categoriaCustomizada" class="block text-sm font-medium text-gray-700">
+                Especifique a categoria
+              </label>
+              <input
+                id="categoriaCustomizada"
+                type="text"
+                formControlName="categoriaCustomizada"
+                class="input-field mt-1"
+                placeholder="Digite sua categoria personalizada">
+            </div>
+          </div>
+        </div>
+
+        <!-- Cor -->
+        <div>
+          <label for="cor" class="block text-sm font-medium text-gray-700">
+            Cor
+          </label>
+          <div class="flex items-center space-x-2 mt-1">
+            <input
+              id="cor"
+              type="color"
+              formControlName="cor"
+              class="w-12 h-10 border border-gray-300 rounded-lg cursor-pointer">
+            <input
+              type="text"
+              formControlName="cor"
+              class="input-field flex-1"
+              placeholder="#3498db">
+          </div>
+        </div>
+
+        <!-- Error Message -->
+        <div *ngIf="errorMessage" class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+          {{ errorMessage }}
+        </div>
+
+        <!-- Actions -->
+        <div class="flex justify-end space-x-4 pt-6 border-t border-gray-200">
+          <button
+            type="button"
+            (click)="cancelar()"
+            class="btn-secondary">
+            Cancelar
+          </button>
+          
+          <button
+            type="submit"
+            [disabled]="tarefaForm.invalid || isLoading"
+            class="btn-primary disabled:opacity-50 disabled:cursor-not-allowed">
+            
+            <span *ngIf="!isLoading">Salvar Alterações</span>
+            <span *ngIf="isLoading" class="flex items-center">
+              <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              Salvando...
+            </span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </main>
+</div>

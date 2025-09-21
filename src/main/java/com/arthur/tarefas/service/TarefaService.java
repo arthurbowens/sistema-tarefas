@@ -1,6 +1,7 @@
 package com.arthur.tarefas.service;
 
 import com.arthur.tarefas.dto.TarefaDTO;
+import com.arthur.tarefas.enums.CategoriaTarefa;
 import com.arthur.tarefas.enums.PrioridadeTarefa;
 import com.arthur.tarefas.enums.StatusTarefa;
 import com.arthur.tarefas.model.Tarefa;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -35,6 +37,7 @@ public class TarefaService {
         tarefa.setDescricao(tarefaDTO.getDescricao());
         tarefa.setStatus(tarefaDTO.getStatus() != null ? tarefaDTO.getStatus() : StatusTarefa.PENDENTE);
         tarefa.setPrioridade(tarefaDTO.getPrioridade() != null ? tarefaDTO.getPrioridade() : PrioridadeTarefa.MEDIA);
+        tarefa.setCategoria(tarefaDTO.getCategoria());
         tarefa.setDataVencimento(tarefaDTO.getDataVencimento());
         tarefa.setCor(tarefaDTO.getCor() != null ? tarefaDTO.getCor() : "#3498db");
         tarefa.setTags(tarefaDTO.getTags());
@@ -54,6 +57,11 @@ public class TarefaService {
         Tarefa tarefa = tarefaRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Tarefa não encontrada"));
         
+        // Verificar se a tarefa está concluída
+        if (tarefa.getStatus() == StatusTarefa.CONCLUIDA) {
+            throw new RuntimeException("Não é possível editar uma tarefa concluída");
+        }
+        
         // Verificar se o usuário tem permissão para editar
         if (!tarefa.getUsuario().getId().equals(usuarioId) && 
             !compartilhamentoService.usuarioPodeEditar(tarefa, usuarioId)) {
@@ -64,6 +72,7 @@ public class TarefaService {
         tarefa.setDescricao(tarefaDTO.getDescricao());
         tarefa.setStatus(tarefaDTO.getStatus());
         tarefa.setPrioridade(tarefaDTO.getPrioridade());
+        tarefa.setCategoria(tarefaDTO.getCategoria());
         tarefa.setDataVencimento(tarefaDTO.getDataVencimento());
         tarefa.setCor(tarefaDTO.getCor());
         tarefa.setTags(tarefaDTO.getTags());
@@ -75,6 +84,11 @@ public class TarefaService {
     public void excluirTarefa(Long id, Long usuarioId) {
         Tarefa tarefa = tarefaRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Tarefa não encontrada"));
+        
+        // Verificar se a tarefa está concluída
+        if (tarefa.getStatus() == StatusTarefa.CONCLUIDA) {
+            throw new RuntimeException("Não é possível excluir uma tarefa concluída");
+        }
         
         if (!tarefa.getUsuario().getId().equals(usuarioId)) {
             throw new RuntimeException("Usuário não tem permissão para excluir esta tarefa");
@@ -99,10 +113,21 @@ public class TarefaService {
         Usuario usuario = usuarioRepository.findById(usuarioId)
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
         
-        return tarefaRepository.findTarefasPrincipaisByUsuario(usuario)
+        // Buscar tarefas próprias do usuário
+        List<TarefaDTO> tarefasProprias = tarefaRepository.findTarefasPrincipaisByUsuario(usuario)
                 .stream()
                 .map(this::converterParaDTO)
                 .collect(Collectors.toList());
+        
+        // Buscar tarefas compartilhadas aceitas
+        List<TarefaDTO> tarefasCompartilhadas = buscarTarefasCompartilhadas(usuarioId);
+        
+        // Combinar as listas
+        List<TarefaDTO> todasTarefas = new ArrayList<>();
+        todasTarefas.addAll(tarefasProprias);
+        todasTarefas.addAll(tarefasCompartilhadas);
+        
+        return todasTarefas;
     }
     
     public List<TarefaDTO> buscarTarefasCompartilhadas(Long usuarioId) {
@@ -155,6 +180,53 @@ public class TarefaService {
                 .collect(Collectors.toList());
     }
     
+    public List<TarefaDTO> buscarComFiltros(Long usuarioId, StatusTarefa status, PrioridadeTarefa prioridade, 
+                                          CategoriaTarefa categoria, String termo, LocalDateTime inicio, LocalDateTime fim) {
+        Usuario usuario = usuarioRepository.findById(usuarioId)
+                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+        
+        List<Tarefa> tarefas = tarefaRepository.findTarefasPrincipaisByUsuario(usuario);
+        
+        // Aplicar filtros
+        if (status != null) {
+            tarefas = tarefas.stream()
+                    .filter(t -> t.getStatus() == status)
+                    .collect(Collectors.toList());
+        }
+        
+        if (prioridade != null) {
+            tarefas = tarefas.stream()
+                    .filter(t -> t.getPrioridade() == prioridade)
+                    .collect(Collectors.toList());
+        }
+        
+        if (categoria != null) {
+            tarefas = tarefas.stream()
+                    .filter(t -> t.getCategoria() == categoria)
+                    .collect(Collectors.toList());
+        }
+        
+        if (termo != null && !termo.trim().isEmpty()) {
+            String termoLower = termo.toLowerCase();
+            tarefas = tarefas.stream()
+                    .filter(t -> (t.getTitulo() != null && t.getTitulo().toLowerCase().contains(termoLower)) ||
+                               (t.getDescricao() != null && t.getDescricao().toLowerCase().contains(termoLower)))
+                    .collect(Collectors.toList());
+        }
+        
+        if (inicio != null && fim != null) {
+            tarefas = tarefas.stream()
+                    .filter(t -> t.getDataVencimento() != null && 
+                               t.getDataVencimento().isAfter(inicio) && 
+                               t.getDataVencimento().isBefore(fim))
+                    .collect(Collectors.toList());
+        }
+        
+        return tarefas.stream()
+                .map(this::converterParaDTO)
+                .collect(Collectors.toList());
+    }
+    
     public TarefaDTO marcarComoConcluida(Long id, Long usuarioId) {
         Tarefa tarefa = tarefaRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Tarefa não encontrada"));
@@ -178,6 +250,7 @@ public class TarefaService {
         dto.setDescricao(tarefa.getDescricao());
         dto.setStatus(tarefa.getStatus());
         dto.setPrioridade(tarefa.getPrioridade());
+        dto.setCategoria(tarefa.getCategoria());
         dto.setDataCriacao(tarefa.getDataCriacao());
         dto.setDataVencimento(tarefa.getDataVencimento());
         dto.setDataConclusao(tarefa.getDataConclusao());

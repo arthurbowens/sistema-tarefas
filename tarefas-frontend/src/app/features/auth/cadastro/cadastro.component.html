@@ -1,0 +1,161 @@
+<div class="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+  <div class="max-w-md w-full space-y-8">
+    <div>
+      <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">
+        Crie sua conta
+      </h2>
+      <p class="mt-2 text-center text-sm text-gray-600">
+        Ou
+        <button 
+          (click)="navegarParaLogin()"
+          class="font-medium text-primary-600 hover:text-primary-500 transition-colors">
+          faça login na sua conta
+        </button>
+      </p>
+    </div>
+    
+    <form class="mt-8 space-y-6" [formGroup]="cadastroForm" (ngSubmit)="onSubmit()">
+      <div class="space-y-4">
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label for="nome" class="block text-sm font-medium text-gray-700">
+              Nome
+            </label>
+            <input
+              id="nome"
+              type="text"
+              formControlName="nome"
+              class="input-field mt-1"
+              placeholder="Seu nome"
+              [class.border-red-500]="cadastroForm.get('nome')?.invalid && cadastroForm.get('nome')?.touched">
+            
+            <div *ngIf="cadastroForm.get('nome')?.invalid && cadastroForm.get('nome')?.touched" 
+                 class="mt-1 text-sm text-red-600">
+              <div *ngIf="cadastroForm.get('nome')?.errors?.['required']">
+                Nome é obrigatório
+              </div>
+              <div *ngIf="cadastroForm.get('nome')?.errors?.['minlength']">
+                Nome deve ter pelo menos 2 caracteres
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <label for="sobrenome" class="block text-sm font-medium text-gray-700">
+              Sobrenome
+            </label>
+            <input
+              id="sobrenome"
+              type="text"
+              formControlName="sobrenome"
+              class="input-field mt-1"
+              placeholder="Seu sobrenome"
+              [class.border-red-500]="cadastroForm.get('sobrenome')?.invalid && cadastroForm.get('sobrenome')?.touched">
+            
+            <div *ngIf="cadastroForm.get('sobrenome')?.invalid && cadastroForm.get('sobrenome')?.touched" 
+                 class="mt-1 text-sm text-red-600">
+              <div *ngIf="cadastroForm.get('sobrenome')?.errors?.['required']">
+                Sobrenome é obrigatório
+              </div>
+              <div *ngIf="cadastroForm.get('sobrenome')?.errors?.['minlength']">
+                Sobrenome deve ter pelo menos 2 caracteres
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <label for="email" class="block text-sm font-medium text-gray-700">
+            Email
+          </label>
+          <input
+            id="email"
+            type="email"
+            formControlName="email"
+            class="input-field mt-1"
+            placeholder="seu@email.com"
+            [class.border-red-500]="cadastroForm.get('email')?.invalid && cadastroForm.get('email')?.touched">
+          
+          <div *ngIf="cadastroForm.get('email')?.invalid && cadastroForm.get('email')?.touched" 
+               class="mt-1 text-sm text-red-600">
+            <div *ngIf="cadastroForm.get('email')?.errors?.['required']">
+              Email é obrigatório
+            </div>
+            <div *ngIf="cadastroForm.get('email')?.errors?.['email']">
+              Email inválido
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <label for="senha" class="block text-sm font-medium text-gray-700">
+            Senha
+          </label>
+          <input
+            id="senha"
+            type="password"
+            formControlName="senha"
+            class="input-field mt-1"
+            placeholder="Sua senha"
+            [class.border-red-500]="cadastroForm.get('senha')?.invalid && cadastroForm.get('senha')?.touched">
+          
+          <div *ngIf="cadastroForm.get('senha')?.invalid && cadastroForm.get('senha')?.touched" 
+               class="mt-1 text-sm text-red-600">
+            <div *ngIf="cadastroForm.get('senha')?.errors?.['required']">
+              Senha é obrigatória
+            </div>
+            <div *ngIf="cadastroForm.get('senha')?.errors?.['minlength']">
+              Senha deve ter pelo menos 6 caracteres
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <label for="confirmarSenha" class="block text-sm font-medium text-gray-700">
+            Confirmar Senha
+          </label>
+          <input
+            id="confirmarSenha"
+            type="password"
+            formControlName="confirmarSenha"
+            class="input-field mt-1"
+            placeholder="Confirme sua senha"
+            [class.border-red-500]="cadastroForm.get('confirmarSenha')?.invalid && cadastroForm.get('confirmarSenha')?.touched">
+          
+          <div *ngIf="cadastroForm.get('confirmarSenha')?.invalid && cadastroForm.get('confirmarSenha')?.touched" 
+               class="mt-1 text-sm text-red-600">
+            <div *ngIf="cadastroForm.get('confirmarSenha')?.errors?.['required']">
+              Confirmação de senha é obrigatória
+            </div>
+          </div>
+          
+          <div *ngIf="cadastroForm.errors?.['senhasNaoCoincidem'] && cadastroForm.get('confirmarSenha')?.touched" 
+               class="mt-1 text-sm text-red-600">
+            As senhas não coincidem
+          </div>
+        </div>
+      </div>
+
+      <div *ngIf="errorMessage" class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+        {{ errorMessage }}
+      </div>
+
+      <div>
+        <button
+          type="submit"
+          [disabled]="cadastroForm.invalid || isLoading"
+          class="btn-primary w-full flex justify-center py-3 px-4 text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed">
+          
+          <span *ngIf="!isLoading">Criar Conta</span>
+          <span *ngIf="isLoading" class="flex items-center">
+            <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            Criando conta...
+          </span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

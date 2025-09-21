@@ -26,6 +26,7 @@ public class ChecklistItemService {
                 .orElseThrow(() -> new RuntimeException("Tarefa não encontrada"));
         
         ChecklistItem item = new ChecklistItem();
+        item.setTitulo(itemDTO.getTitulo());
         item.setDescricao(itemDTO.getDescricao());
         item.setConcluido(false);
         item.setTarefa(tarefa);
@@ -39,6 +40,7 @@ public class ChecklistItemService {
         ChecklistItem item = checklistItemRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Item não encontrado"));
         
+        item.setTitulo(itemDTO.getTitulo());
         item.setDescricao(itemDTO.getDescricao());
         item.setConcluido(itemDTO.isConcluido());
         item.setOrdem(itemDTO.getOrdem());
@@ -101,6 +103,7 @@ public class ChecklistItemService {
     public ChecklistItemDTO converterParaDTO(ChecklistItem item) {
         ChecklistItemDTO dto = new ChecklistItemDTO();
         dto.setId(item.getId());
+        dto.setTitulo(item.getTitulo());
         dto.setDescricao(item.getDescricao());
         dto.setConcluido(item.isConcluido());
         dto.setDataCriacao(item.getDataCriacao());

@@ -1,0 +1,233 @@
+<div class="min-h-screen bg-gray-50">
+  <!-- Header -->
+  <header class="bg-white shadow-sm border-b border-gray-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between items-center h-16">
+        <div class="flex items-center">
+          <h1 class="text-xl font-semibold text-gray-900">Sistema de Tarefas</h1>
+        </div>
+        
+        <div class="flex items-center space-x-4">
+          <span class="text-sm text-gray-700">
+            Olá, {{ usuario?.nome }} {{ usuario?.sobrenome }}
+          </span>
+          <button
+            (click)="logout()"
+            class="btn-secondary text-sm">
+            Sair
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+    <!-- Convites Pendentes -->
+    <app-convites-pendentes></app-convites-pendentes>
+    
+    <!-- Welcome Section -->
+    <div class="mb-8">
+      <h2 class="text-2xl font-bold text-gray-900 mb-2">
+        Bem-vindo ao seu painel de controle!
+      </h2>
+      <p class="text-gray-600">
+        Gerencie suas tarefas de forma eficiente e produtiva.
+      </p>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      <button
+        (click)="navegarParaCriarTarefa()"
+        class="card hover:shadow-lg transition-shadow cursor-pointer text-left">
+        <div class="flex items-center">
+          <div class="flex-shrink-0">
+            <div class="w-8 h-8 bg-primary-100 rounded-lg flex items-center justify-center">
+              <svg class="w-5 h-5 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+              </svg>
+            </div>
+          </div>
+          <div class="ml-4">
+            <h3 class="text-lg font-medium text-gray-900">Nova Tarefa</h3>
+            <p class="text-sm text-gray-500">Criar uma nova tarefa</p>
+          </div>
+        </div>
+      </button>
+
+      <button
+        (click)="navegarParaTarefas()"
+        class="card hover:shadow-lg transition-shadow cursor-pointer text-left">
+        <div class="flex items-center">
+          <div class="flex-shrink-0">
+            <div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
+              <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+              </svg>
+            </div>
+          </div>
+          <div class="ml-4">
+            <h3 class="text-lg font-medium text-gray-900">Ver Tarefas</h3>
+            <p class="text-sm text-gray-500">Gerenciar todas as tarefas</p>
+          </div>
+        </div>
+      </button>
+
+      <button
+        (click)="navegarParaEstatisticas()"
+        class="card hover:shadow-lg transition-shadow cursor-pointer text-left">
+        <div class="flex items-center">
+          <div class="flex-shrink-0">
+            <div class="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
+              <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+              </svg>
+            </div>
+          </div>
+          <div class="ml-4">
+            <h3 class="text-lg font-medium text-gray-900">Estatísticas</h3>
+            <p class="text-sm text-gray-500">Ver relatórios e métricas</p>
+          </div>
+        </div>
+      </button>
+
+      <button
+        (click)="navegarParaGoogleCalendar()"
+        class="card hover:shadow-lg transition-shadow cursor-pointer text-left">
+        <div class="flex items-center">
+          <div class="flex-shrink-0">
+            <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+              <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+              </svg>
+            </div>
+          </div>
+          <div class="ml-4">
+            <h3 class="text-lg font-medium text-gray-900">Google Calendar</h3>
+            <p class="text-sm text-gray-500">Sincronizar com calendário</p>
+          </div>
+        </div>
+      </button>
+    </div>
+
+    <!-- Statistics -->
+    <div *ngIf="estatisticas" class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+      <div class="card">
+        <div class="flex items-center">
+          <div class="flex-shrink-0">
+            <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+              <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+              </svg>
+            </div>
+          </div>
+          <div class="ml-4">
+            <p class="text-sm font-medium text-gray-500">Total de Tarefas</p>
+            <p class="text-2xl font-semibold text-gray-900">{{ estatisticas.totalTarefas }}</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="flex items-center">
+          <div class="flex-shrink-0">
+            <div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
+              <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+              </svg>
+            </div>
+          </div>
+          <div class="ml-4">
+            <p class="text-sm font-medium text-gray-500">Concluídas</p>
+            <p class="text-2xl font-semibold text-gray-900">{{ estatisticas.tarefasConcluidas }}</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="flex items-center">
+          <div class="flex-shrink-0">
+            <div class="w-8 h-8 bg-yellow-100 rounded-lg flex items-center justify-center">
+              <svg class="w-5 h-5 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+            </div>
+          </div>
+          <div class="ml-4">
+            <p class="text-sm font-medium text-gray-500">Pendentes</p>
+            <p class="text-2xl font-semibold text-gray-900">{{ estatisticas.tarefasPendentes }}</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="flex items-center">
+          <div class="flex-shrink-0">
+            <div class="w-8 h-8 bg-red-100 rounded-lg flex items-center justify-center">
+              <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+              </svg>
+            </div>
+          </div>
+          <div class="ml-4">
+            <p class="text-sm font-medium text-gray-500">Atrasadas</p>
+            <p class="text-2xl font-semibold text-gray-900">{{ estatisticas.tarefasAtrasadas }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent Tasks -->
+    <div class="card">
+      <div class="card-header">
+        <h3 class="text-lg font-medium text-gray-900">Tarefas Recentes</h3>
+      </div>
+      
+      <div *ngIf="isLoading" class="flex justify-center py-8">
+        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
+      </div>
+
+      <div *ngIf="!isLoading && tarefas.length === 0" class="text-center py-8">
+        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+        </svg>
+        <h3 class="mt-2 text-sm font-medium text-gray-900">Nenhuma tarefa encontrada</h3>
+        <p class="mt-1 text-sm text-gray-500">Comece criando uma nova tarefa.</p>
+        <div class="mt-6">
+          <button
+            (click)="navegarParaCriarTarefa()"
+            class="btn-primary">
+            Nova Tarefa
+          </button>
+        </div>
+      </div>
+
+      <div *ngIf="!isLoading && tarefas.length > 0" class="space-y-4">
+        <div *ngFor="let tarefa of tarefas.slice(0, 5)" class="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 transition-colors">
+          <div class="flex items-start justify-between">
+            <div class="flex-1">
+              <h4 class="text-sm font-medium text-gray-900">{{ tarefa.titulo }}</h4>
+              <p class="text-sm text-gray-500 mt-1">{{ tarefa.descricao }}</p>
+              <div class="flex items-center mt-2 space-x-2">
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
+                      [class]="obterCorPrioridade(tarefa.prioridade)">
+                  {{ tarefa.prioridade }}
+                </span>
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
+                      [class]="obterCorStatus(tarefa.status)">
+                  {{ tarefa.status }}
+                </span>
+              </div>
+            </div>
+            <div class="ml-4 text-right">
+              <p class="text-xs text-gray-500">
+                {{ tarefa.dataCriacao | date:'dd/MM/yyyy' }}
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>

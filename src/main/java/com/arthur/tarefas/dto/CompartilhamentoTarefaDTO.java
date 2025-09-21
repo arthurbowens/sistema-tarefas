@@ -1,6 +1,7 @@
 package com.arthur.tarefas.dto;
 
 import com.arthur.tarefas.enums.TipoCompartilhamento;
+import com.arthur.tarefas.dto.TarefaDTO;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -14,8 +15,9 @@ public class CompartilhamentoTarefaDTO {
     
     private Long id;
     private Long tarefaId;
-    private UsuarioDTO usuario;
-    private TipoCompartilhamento tipo;
+    private TarefaDTO tarefa;
+    private UsuarioDTO usuarioCompartilhado;
+    private TipoCompartilhamento tipoCompartilhamento;
     private LocalDateTime dataCompartilhamento;
     private LocalDateTime dataExpiracao;
     private boolean conviteAceito;

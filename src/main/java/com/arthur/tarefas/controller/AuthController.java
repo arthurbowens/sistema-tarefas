@@ -11,6 +11,10 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 
 @RestController
 @RequestMapping("/api/auth")
@@ -23,7 +27,7 @@ public class AuthController {
     private final UsuarioService usuarioService;
     
     @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestBody LoginRequest loginRequest) {
+    public ResponseEntity<Map<String, String>> login(@RequestBody LoginRequest loginRequest) {
         try {
             Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getSenha())
@@ -32,15 +36,19 @@ public class AuthController {
             Usuario usuario = (Usuario) authentication.getPrincipal();
             String token = jwtUtil.generateToken(usuario);
             
-            // Retornar apenas o token, sem aspas
-            return ResponseEntity.ok(token);
+            Map<String, String> response = new HashMap<>();
+            response.put("token", token);
+            
+            return ResponseEntity.ok(response);
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body("Erro: " + e.getMessage());
+            Map<String, String> error = new HashMap<>();
+            error.put("erro", "Credenciais inválidas");
+            return ResponseEntity.badRequest().body(error);
         }
     }
     
     @PostMapping("/registro")
-    public ResponseEntity<String> registro(@RequestBody UsuarioDTO usuarioDTO) {
+    public ResponseEntity<Map<String, String>> registro(@RequestBody UsuarioDTO usuarioDTO) {
         try {
             usuarioService.criarUsuario(usuarioDTO);
             
@@ -52,10 +60,14 @@ public class AuthController {
             Usuario usuario = (Usuario) authentication.getPrincipal();
             String token = jwtUtil.generateToken(usuario);
             
-            // Retornar apenas o token, sem aspas
-            return ResponseEntity.ok(token);
+            Map<String, String> response = new HashMap<>();
+            response.put("token", token);
+            
+            return ResponseEntity.ok(response);
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body("Erro: " + e.getMessage());
+            Map<String, String> error = new HashMap<>();
+            error.put("erro", "Erro ao criar conta: " + e.getMessage());
+            return ResponseEntity.badRequest().body(error);
         }
     }
     
@@ -74,9 +86,15 @@ public class AuthController {
     }
     
     @GetMapping("/usuario/{uuid}")
-    public ResponseEntity<UsuarioDTO> buscarPorUuid(@PathVariable String uuid) {
+    public ResponseEntity<UsuarioDTO> buscarPorUuid(@PathVariable("uuid") String uuid) {
         UsuarioDTO usuario = usuarioService.buscarPorUuid(uuid);
         return ResponseEntity.ok(usuario);
+    }
+    
+    @GetMapping("/usuarios/buscar")
+    public ResponseEntity<List<UsuarioDTO>> buscarUsuariosPorEmail(@RequestParam("email") String email) {
+        List<UsuarioDTO> usuarios = usuarioService.buscarUsuariosPorEmail(email);
+        return ResponseEntity.ok(usuarios);
     }
     
     // Classe interna para o request de login

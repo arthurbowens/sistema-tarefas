@@ -74,6 +74,13 @@ public class UsuarioService {
                 .collect(Collectors.toList());
     }
     
+    public List<UsuarioDTO> buscarUsuariosPorEmail(String email) {
+        return usuarioRepository.findByEmailContainingAndAtivoTrue(email)
+                .stream()
+                .map(this::converterParaDTO)
+                .collect(Collectors.toList());
+    }
+    
     public void desativarUsuario(Long id) {
         Usuario usuario = usuarioRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));

@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
 public class ChecklistItemDTO {
     
     private Long id;
+    private String titulo;
     private String descricao;
     private boolean concluido;
     private LocalDateTime dataCriacao;

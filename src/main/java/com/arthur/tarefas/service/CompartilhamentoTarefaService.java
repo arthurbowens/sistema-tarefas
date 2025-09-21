@@ -129,7 +129,7 @@ public class CompartilhamentoTarefaService {
                 usuarioRepository.findById(usuarioId).orElse(null))
                 .map(compartilhamento -> compartilhamento.isConviteAceito() && 
                      (compartilhamento.getTipo() == TipoCompartilhamento.ESCRITA || 
-                      compartilhamento.getTipo() == TipoCompartilhamento.ADMINISTRADOR) &&
+                      compartilhamento.getTipo() == TipoCompartilhamento.ADMIN) &&
                      (compartilhamento.getDataExpiracao() == null || 
                       compartilhamento.getDataExpiracao().isAfter(LocalDateTime.now())))
                 .orElse(false);
@@ -140,15 +140,30 @@ public class CompartilhamentoTarefaService {
         dto.setId(compartilhamento.getId());
         dto.setTarefaId(compartilhamento.getTarefa().getId());
         
+        // Converter tarefa para DTO
+        com.arthur.tarefas.dto.TarefaDTO tarefaDTO = new com.arthur.tarefas.dto.TarefaDTO();
+        tarefaDTO.setId(compartilhamento.getTarefa().getId());
+        tarefaDTO.setTitulo(compartilhamento.getTarefa().getTitulo());
+        tarefaDTO.setDescricao(compartilhamento.getTarefa().getDescricao());
+        tarefaDTO.setStatus(compartilhamento.getTarefa().getStatus());
+        tarefaDTO.setPrioridade(compartilhamento.getTarefa().getPrioridade());
+        tarefaDTO.setCategoria(compartilhamento.getTarefa().getCategoria());
+        tarefaDTO.setDataCriacao(compartilhamento.getTarefa().getDataCriacao());
+        tarefaDTO.setDataVencimento(compartilhamento.getTarefa().getDataVencimento());
+        tarefaDTO.setDataConclusao(compartilhamento.getTarefa().getDataConclusao());
+        tarefaDTO.setTags(compartilhamento.getTarefa().getTags());
+        tarefaDTO.setCor(compartilhamento.getTarefa().getCor());
+        dto.setTarefa(tarefaDTO);
+        
         // Converter usuário para DTO
         com.arthur.tarefas.dto.UsuarioDTO usuarioDTO = new com.arthur.tarefas.dto.UsuarioDTO();
         usuarioDTO.setId(compartilhamento.getUsuario().getId());
         usuarioDTO.setEmail(compartilhamento.getUsuario().getEmail());
         usuarioDTO.setNome(compartilhamento.getUsuario().getNome());
         usuarioDTO.setSobrenome(compartilhamento.getUsuario().getSobrenome());
-        dto.setUsuario(usuarioDTO);
+        dto.setUsuarioCompartilhado(usuarioDTO);
         
-        dto.setTipo(compartilhamento.getTipo());
+        dto.setTipoCompartilhamento(compartilhamento.getTipo());
         dto.setDataCompartilhamento(compartilhamento.getDataCompartilhamento());
         dto.setDataExpiracao(compartilhamento.getDataExpiracao());
         dto.setConviteAceito(compartilhamento.isConviteAceito());

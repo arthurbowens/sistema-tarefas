@@ -17,42 +17,42 @@ public class ChecklistController {
     private final ChecklistItemService checklistItemService;
     
     @PostMapping
-    public ResponseEntity<ChecklistItemDTO> criarItem(@PathVariable Long tarefaId,
+    public ResponseEntity<ChecklistItemDTO> criarItem(@PathVariable("tarefaId") Long tarefaId,
                                                      @RequestBody ChecklistItemDTO itemDTO) {
         ChecklistItemDTO itemCriado = checklistItemService.criarItem(tarefaId, itemDTO);
         return ResponseEntity.ok(itemCriado);
     }
     
     @GetMapping
-    public ResponseEntity<List<ChecklistItemDTO>> buscarItens(@PathVariable Long tarefaId) {
+    public ResponseEntity<List<ChecklistItemDTO>> buscarItens(@PathVariable("tarefaId") Long tarefaId) {
         List<ChecklistItemDTO> itens = checklistItemService.buscarItensDaTarefa(tarefaId);
         return ResponseEntity.ok(itens);
     }
     
     @PutMapping("/{id}")
-    public ResponseEntity<ChecklistItemDTO> atualizarItem(@PathVariable Long tarefaId,
-                                                         @PathVariable Long id,
+    public ResponseEntity<ChecklistItemDTO> atualizarItem(@PathVariable("tarefaId") Long tarefaId,
+                                                         @PathVariable("id") Long id,
                                                          @RequestBody ChecklistItemDTO itemDTO) {
         ChecklistItemDTO itemAtualizado = checklistItemService.atualizarItem(id, itemDTO);
         return ResponseEntity.ok(itemAtualizado);
     }
     
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> excluirItem(@PathVariable Long tarefaId,
-                                           @PathVariable Long id) {
+    public ResponseEntity<Void> excluirItem(@PathVariable("tarefaId") Long tarefaId,
+                                           @PathVariable("id") Long id) {
         checklistItemService.excluirItem(id);
         return ResponseEntity.noContent().build();
     }
     
     @PutMapping("/{id}/concluir")
-    public ResponseEntity<ChecklistItemDTO> marcarComoConcluido(@PathVariable Long tarefaId,
-                                                               @PathVariable Long id) {
+    public ResponseEntity<ChecklistItemDTO> marcarComoConcluido(@PathVariable("tarefaId") Long tarefaId,
+                                                               @PathVariable("id") Long id) {
         ChecklistItemDTO item = checklistItemService.marcarComoConcluido(id);
         return ResponseEntity.ok(item);
     }
     
     @PutMapping("/reordenar")
-    public ResponseEntity<Void> reordenarItens(@PathVariable Long tarefaId,
+    public ResponseEntity<Void> reordenarItens(@PathVariable("tarefaId") Long tarefaId,
                                               @RequestBody List<Long> idsOrdenados) {
         checklistItemService.reordenarItens(tarefaId, idsOrdenados);
         return ResponseEntity.ok().build();

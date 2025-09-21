@@ -28,7 +28,7 @@ public class GoogleCalendarController {
     }
     
     @GetMapping("/callback")
-    public ResponseEntity<Map<String, String>> processCallback(@RequestParam String code,
+    public ResponseEntity<Map<String, String>> processCallback(@RequestParam("code") String code,
                                                               Authentication authentication) {
         Usuario usuario = (Usuario) authentication.getPrincipal();
         googleCalendarService.processarCallback(code, usuario.getId());
@@ -37,8 +37,8 @@ public class GoogleCalendarController {
     }
     
     @PostMapping("/conectar")
-    public ResponseEntity<Map<String, String>> conectar(@RequestParam String token,
-                                                       @RequestParam String refreshToken,
+    public ResponseEntity<Map<String, String>> conectar(@RequestParam("token") String token,
+                                                       @RequestParam("refreshToken") String refreshToken,
                                                        Authentication authentication) {
         Usuario usuario = (Usuario) authentication.getPrincipal();
         usuarioService.conectarGoogleCalendar(usuario.getId(), token, refreshToken);

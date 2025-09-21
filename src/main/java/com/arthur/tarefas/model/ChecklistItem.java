@@ -19,6 +19,9 @@ public class ChecklistItem {
     private Long id;
     
     @Column(nullable = false)
+    private String titulo;
+    
+    @Column(columnDefinition = "TEXT")
     private String descricao;
     
     @Column(nullable = false)

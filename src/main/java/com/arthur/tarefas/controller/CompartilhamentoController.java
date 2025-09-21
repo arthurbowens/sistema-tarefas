@@ -23,10 +23,10 @@ public class CompartilhamentoController {
     
     @PostMapping
     public ResponseEntity<CompartilhamentoTarefaDTO> compartilharTarefa(
-            @PathVariable Long tarefaId,
-            @RequestParam String emailUsuario,
-            @RequestParam TipoCompartilhamento tipo,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime dataExpiracao,
+            @PathVariable("tarefaId") Long tarefaId,
+            @RequestParam("emailUsuario") String emailUsuario,
+            @RequestParam("tipo") TipoCompartilhamento tipo,
+            @RequestParam(value = "dataExpiracao", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime dataExpiracao,
             Authentication authentication) {
         
         Usuario usuario = (Usuario) authentication.getPrincipal();
@@ -36,42 +36,17 @@ public class CompartilhamentoController {
     }
     
     @GetMapping
-    public ResponseEntity<List<CompartilhamentoTarefaDTO>> buscarCompartilhamentos(@PathVariable Long tarefaId) {
+    public ResponseEntity<List<CompartilhamentoTarefaDTO>> buscarCompartilhamentos(@PathVariable("tarefaId") Long tarefaId) {
         List<CompartilhamentoTarefaDTO> compartilhamentos = compartilhamentoService.buscarCompartilhamentosDaTarefa(tarefaId);
         return ResponseEntity.ok(compartilhamentos);
     }
     
-    @PutMapping("/{id}/aceitar")
-    public ResponseEntity<Void> aceitarConvite(@PathVariable Long tarefaId,
-                                              @PathVariable Long id,
-                                              Authentication authentication) {
-        Usuario usuario = (Usuario) authentication.getPrincipal();
-        compartilhamentoService.aceitarConvite(id, usuario.getId());
-        return ResponseEntity.ok().build();
-    }
-    
-    @PutMapping("/{id}/rejeitar")
-    public ResponseEntity<Void> rejeitarConvite(@PathVariable Long tarefaId,
-                                               @PathVariable Long id,
-                                               Authentication authentication) {
-        Usuario usuario = (Usuario) authentication.getPrincipal();
-        compartilhamentoService.rejeitarConvite(id, usuario.getId());
-        return ResponseEntity.ok().build();
-    }
-    
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> removerCompartilhamento(@PathVariable Long tarefaId,
-                                                        @PathVariable Long id,
+    public ResponseEntity<Void> removerCompartilhamento(@PathVariable("tarefaId") Long tarefaId,
+                                                        @PathVariable("id") Long id,
                                                         Authentication authentication) {
         Usuario usuario = (Usuario) authentication.getPrincipal();
         compartilhamentoService.removerCompartilhamento(id, usuario.getId());
         return ResponseEntity.noContent().build();
-    }
-    
-    @GetMapping("/convites")
-    public ResponseEntity<List<CompartilhamentoTarefaDTO>> buscarConvitesPendentes(Authentication authentication) {
-        Usuario usuario = (Usuario) authentication.getPrincipal();
-        List<CompartilhamentoTarefaDTO> convites = compartilhamentoService.buscarConvitesPendentes(usuario.getId());
-        return ResponseEntity.ok(convites);
     }
 }

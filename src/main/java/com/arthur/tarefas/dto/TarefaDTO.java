@@ -1,5 +1,6 @@
 package com.arthur.tarefas.dto;
 
+import com.arthur.tarefas.enums.CategoriaTarefa;
 import com.arthur.tarefas.enums.PrioridadeTarefa;
 import com.arthur.tarefas.enums.StatusTarefa;
 import lombok.AllArgsConstructor;
@@ -19,6 +20,7 @@ public class TarefaDTO {
     private String descricao;
     private StatusTarefa status;
     private PrioridadeTarefa prioridade;
+    private CategoriaTarefa categoria;
     private LocalDateTime dataCriacao;
     private LocalDateTime dataVencimento;
     private LocalDateTime dataConclusao;

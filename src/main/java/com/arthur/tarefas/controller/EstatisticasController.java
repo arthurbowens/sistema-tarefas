@@ -2,7 +2,7 @@ package com.arthur.tarefas.controller;
 
 import com.arthur.tarefas.enums.StatusTarefa;
 import com.arthur.tarefas.model.Usuario;
-import com.arthur.tarefas.repository.TarefaRepository;
+import com.arthur.tarefas.service.TarefaService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -18,28 +19,33 @@ import java.util.Map;
 @CrossOrigin(origins = "*")
 public class EstatisticasController {
     
-    private final TarefaRepository tarefaRepository;
+    private final TarefaService tarefaService;
     
     @GetMapping
     public ResponseEntity<Map<String, Object>> getEstatisticas(Authentication authentication) {
         Usuario usuario = (Usuario) authentication.getPrincipal();
         
-        Long totalTarefas = tarefaRepository.countByUsuarioAndStatus(usuario, StatusTarefa.PENDENTE) +
-                           tarefaRepository.countByUsuarioAndStatus(usuario, StatusTarefa.EM_ANDAMENTO) +
-                           tarefaRepository.countByUsuarioAndStatus(usuario, StatusTarefa.CONCLUIDA);
+        // Buscar todas as tarefas do usuário (incluindo compartilhadas aceitas)
+        List<com.arthur.tarefas.dto.TarefaDTO> todasTarefas = tarefaService.buscarTarefasDoUsuario(usuario.getId());
         
-        Long tarefasConcluidas = tarefaRepository.countByUsuarioAndStatus(usuario, StatusTarefa.CONCLUIDA);
-        Long tarefasPendentes = tarefaRepository.countByUsuarioAndStatus(usuario, StatusTarefa.PENDENTE);
-        Long tarefasEmAndamento = tarefaRepository.countByUsuarioAndStatus(usuario, StatusTarefa.EM_ANDAMENTO);
+        // Contar por status
+        long totalTarefas = todasTarefas.size();
+        long tarefasConcluidas = todasTarefas.stream()
+                .filter(tarefa -> tarefa.getStatus() == StatusTarefa.CONCLUIDA)
+                .count();
+        long tarefasPendentes = todasTarefas.stream()
+                .filter(tarefa -> tarefa.getStatus() == StatusTarefa.PENDENTE)
+                .count();
+        long tarefasEmAndamento = todasTarefas.stream()
+                .filter(tarefa -> tarefa.getStatus() == StatusTarefa.EM_ANDAMENTO)
+                .count();
         
         // Calcular tarefas atrasadas (pendentes com data de vencimento passada)
-        Long tarefasAtrasadas = tarefaRepository.findByUsuarioAndDataVencimentoBetween(
-            usuario, LocalDateTime.now().minusYears(1), LocalDateTime.now())
-            .stream()
-            .filter(tarefa -> tarefa.getStatus() != StatusTarefa.CONCLUIDA && 
-                             tarefa.getDataVencimento() != null && 
-                             tarefa.getDataVencimento().isBefore(LocalDateTime.now()))
-            .count();
+        long tarefasAtrasadas = todasTarefas.stream()
+                .filter(tarefa -> tarefa.getStatus() != StatusTarefa.CONCLUIDA && 
+                                 tarefa.getDataVencimento() != null && 
+                                 tarefa.getDataVencimento().isBefore(LocalDateTime.now()))
+                .count();
         
         Map<String, Object> estatisticas = new HashMap<>();
         estatisticas.put("totalTarefas", totalTarefas);

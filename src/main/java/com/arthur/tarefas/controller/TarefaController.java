@@ -1,6 +1,7 @@
 package com.arthur.tarefas.controller;
 
 import com.arthur.tarefas.dto.TarefaDTO;
+import com.arthur.tarefas.enums.CategoriaTarefa;
 import com.arthur.tarefas.enums.PrioridadeTarefa;
 import com.arthur.tarefas.enums.StatusTarefa;
 import com.arthur.tarefas.model.Usuario;
@@ -46,7 +47,7 @@ public class TarefaController {
     }
     
     @GetMapping("/{id}")
-    public ResponseEntity<TarefaDTO> buscarPorId(@PathVariable Long id, 
+    public ResponseEntity<TarefaDTO> buscarPorId(@PathVariable("id") Long id, 
                                                 Authentication authentication) {
         Usuario usuario = (Usuario) authentication.getPrincipal();
         TarefaDTO tarefa = tarefaService.buscarPorId(id, usuario.getId());
@@ -54,7 +55,7 @@ public class TarefaController {
     }
     
     @PutMapping("/{id}")
-    public ResponseEntity<TarefaDTO> atualizarTarefa(@PathVariable Long id, 
+    public ResponseEntity<TarefaDTO> atualizarTarefa(@PathVariable("id") Long id, 
                                                     @RequestBody TarefaDTO tarefaDTO,
                                                     Authentication authentication) {
         Usuario usuario = (Usuario) authentication.getPrincipal();
@@ -63,15 +64,29 @@ public class TarefaController {
     }
     
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> excluirTarefa(@PathVariable Long id, 
+    public ResponseEntity<Void> excluirTarefa(@PathVariable("id") Long id, 
                                              Authentication authentication) {
         Usuario usuario = (Usuario) authentication.getPrincipal();
         tarefaService.excluirTarefa(id, usuario.getId());
         return ResponseEntity.noContent().build();
     }
     
+    @GetMapping("/filtros")
+    public ResponseEntity<List<TarefaDTO>> buscarComFiltros(
+            @RequestParam(required = false) StatusTarefa status,
+            @RequestParam(required = false) PrioridadeTarefa prioridade,
+            @RequestParam(required = false) CategoriaTarefa categoria,
+            @RequestParam(required = false) String termo,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime inicio,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime fim,
+            Authentication authentication) {
+        Usuario usuario = (Usuario) authentication.getPrincipal();
+        List<TarefaDTO> tarefas = tarefaService.buscarComFiltros(usuario.getId(), status, prioridade, categoria, termo, inicio, fim);
+        return ResponseEntity.ok(tarefas);
+    }
+    
     @GetMapping("/status/{status}")
-    public ResponseEntity<List<TarefaDTO>> buscarPorStatus(@PathVariable StatusTarefa status,
+    public ResponseEntity<List<TarefaDTO>> buscarPorStatus(@PathVariable("status") StatusTarefa status,
                                                           Authentication authentication) {
         Usuario usuario = (Usuario) authentication.getPrincipal();
         List<TarefaDTO> tarefas = tarefaService.buscarPorStatus(usuario.getId(), status);
@@ -79,7 +94,7 @@ public class TarefaController {
     }
     
     @GetMapping("/prioridade/{prioridade}")
-    public ResponseEntity<List<TarefaDTO>> buscarPorPrioridade(@PathVariable PrioridadeTarefa prioridade,
+    public ResponseEntity<List<TarefaDTO>> buscarPorPrioridade(@PathVariable("prioridade") PrioridadeTarefa prioridade,
                                                               Authentication authentication) {
         Usuario usuario = (Usuario) authentication.getPrincipal();
         List<TarefaDTO> tarefas = tarefaService.buscarPorPrioridade(usuario.getId(), prioridade);
@@ -88,8 +103,8 @@ public class TarefaController {
     
     @GetMapping("/periodo")
     public ResponseEntity<List<TarefaDTO>> buscarPorPeriodo(
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime inicio,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime fim,
+            @RequestParam("inicio") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime inicio,
+            @RequestParam("fim") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime fim,
             Authentication authentication) {
         Usuario usuario = (Usuario) authentication.getPrincipal();
         List<TarefaDTO> tarefas = tarefaService.buscarPorPeriodo(usuario.getId(), inicio, fim);
@@ -97,7 +112,7 @@ public class TarefaController {
     }
     
     @GetMapping("/buscar")
-    public ResponseEntity<List<TarefaDTO>> buscarPorTermo(@RequestParam String termo,
+    public ResponseEntity<List<TarefaDTO>> buscarPorTermo(@RequestParam("termo") String termo,
                                                          Authentication authentication) {
         Usuario usuario = (Usuario) authentication.getPrincipal();
         List<TarefaDTO> tarefas = tarefaService.buscarPorTermo(usuario.getId(), termo);
@@ -105,11 +120,16 @@ public class TarefaController {
     }
     
     @PutMapping("/{id}/concluir")
-    public ResponseEntity<TarefaDTO> marcarComoConcluida(@PathVariable Long id,
+    public ResponseEntity<TarefaDTO> marcarComoConcluida(@PathVariable("id") Long id,
                                                         Authentication authentication) {
         Usuario usuario = (Usuario) authentication.getPrincipal();
         TarefaDTO tarefa = tarefaService.marcarComoConcluida(id, usuario.getId());
         return ResponseEntity.ok(tarefa);
+    }
+    
+    @GetMapping("/categorias")
+    public ResponseEntity<CategoriaTarefa[]> getCategorias() {
+        return ResponseEntity.ok(CategoriaTarefa.values());
     }
     
     @GetMapping("/estatisticas")

@@ -27,4 +27,7 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
     
     @Query("SELECT u FROM Usuario u WHERE u.nome LIKE %:nome% OR u.sobrenome LIKE %:nome%")
     java.util.List<Usuario> findByNomeContaining(@Param("nome") String nome);
+    
+    @Query("SELECT u FROM Usuario u WHERE u.email LIKE %:email% AND u.ativo = true")
+    java.util.List<Usuario> findByEmailContainingAndAtivoTrue(@Param("email") String email);
 }
