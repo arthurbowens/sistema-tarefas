@@ -1,0 +1,92 @@
+package com.arthur.tarefas.controller;
+
+import com.arthur.tarefas.dto.UsuarioDTO;
+import com.arthur.tarefas.model.Usuario;
+import com.arthur.tarefas.security.JwtUtil;
+import com.arthur.tarefas.service.UsuarioService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.*;
+
+
+@RestController
+@RequestMapping("/api/auth")
+@RequiredArgsConstructor
+@CrossOrigin(origins = "*")
+public class AuthController {
+    
+    private final AuthenticationManager authenticationManager;
+    private final JwtUtil jwtUtil;
+    private final UsuarioService usuarioService;
+    
+    @PostMapping("/login")
+    public ResponseEntity<String> login(@RequestBody LoginRequest loginRequest) {
+        try {
+            Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getSenha())
+            );
+            
+            Usuario usuario = (Usuario) authentication.getPrincipal();
+            String token = jwtUtil.generateToken(usuario);
+            
+            // Retornar apenas o token, sem aspas
+            return ResponseEntity.ok(token);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Erro: " + e.getMessage());
+        }
+    }
+    
+    @PostMapping("/registro")
+    public ResponseEntity<String> registro(@RequestBody UsuarioDTO usuarioDTO) {
+        try {
+            usuarioService.criarUsuario(usuarioDTO);
+            
+            // Fazer login automático após registro
+            Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(usuarioDTO.getEmail(), usuarioDTO.getSenha())
+            );
+            
+            Usuario usuario = (Usuario) authentication.getPrincipal();
+            String token = jwtUtil.generateToken(usuario);
+            
+            // Retornar apenas o token, sem aspas
+            return ResponseEntity.ok(token);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Erro: " + e.getMessage());
+        }
+    }
+    
+    @GetMapping("/perfil")
+    public ResponseEntity<UsuarioDTO> getPerfil(Authentication authentication) {
+        Usuario usuario = (Usuario) authentication.getPrincipal();
+        return ResponseEntity.ok(usuarioService.converterParaDTO(usuario));
+    }
+    
+    @PutMapping("/perfil")
+    public ResponseEntity<UsuarioDTO> atualizarPerfil(@RequestBody UsuarioDTO usuarioDTO, 
+                                                     Authentication authentication) {
+        Usuario usuario = (Usuario) authentication.getPrincipal();
+        UsuarioDTO usuarioAtualizado = usuarioService.atualizarUsuario(usuario.getId(), usuarioDTO);
+        return ResponseEntity.ok(usuarioAtualizado);
+    }
+    
+    @GetMapping("/usuario/{uuid}")
+    public ResponseEntity<UsuarioDTO> buscarPorUuid(@PathVariable String uuid) {
+        UsuarioDTO usuario = usuarioService.buscarPorUuid(uuid);
+        return ResponseEntity.ok(usuario);
+    }
+    
+    // Classe interna para o request de login
+    public static class LoginRequest {
+        private String email;
+        private String senha;
+        
+        public String getEmail() { return email; }
+        public void setEmail(String email) { this.email = email; }
+        public String getSenha() { return senha; }
+        public void setSenha(String senha) { this.senha = senha; }
+    }
+}

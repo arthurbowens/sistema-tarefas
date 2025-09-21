@@ -1,0 +1,25 @@
+services:
+  - type: web
+    name: tarefas-backend
+    env: java
+    plan: free
+    buildCommand: ./mvnw clean package -DskipTests
+    startCommand: java -jar target/tarefas-1.0-SNAPSHOT.jar
+    envVars:
+      - key: SPRING_PROFILES_ACTIVE
+        value: production
+      - key: DATABASE_URL
+        fromDatabase:
+          name: tarefas-db
+          property: connectionString
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_EXPIRATION
+        value: "86400000"
+      - key: GOOGLE_CALENDAR_CREDENTIALS_PATH
+        value: "/app/credentials.json"
+
+databases:
+  - name: tarefas-db
+    plan: free
+    databaseName: tarefas_db
