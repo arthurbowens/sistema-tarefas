@@ -25,118 +25,159 @@
         <p class="text-sm text-gray-500">Preencha os dados abaixo para criar uma nova tarefa.</p>
       </div>
 
-      <form [formGroup]="tarefaForm" (ngSubmit)="onSubmit()" class="space-y-6">
-        <!-- Título -->
+      <form (ngSubmit)="onSubmit()" class="space-y-4">
         <div>
-          <label for="titulo" class="block text-sm font-medium text-gray-700">
+          <label class="block text-sm font-medium text-gray-700 mb-1">
             Título *
           </label>
           <input
-            id="titulo"
             type="text"
-            formControlName="titulo"
-            class="input-field mt-1"
+            [(ngModel)]="novaTarefa.titulo"
+            name="titulo"
+            required
             placeholder="Digite o título da tarefa"
-            [class.border-red-500]="tarefaForm.get('titulo')?.invalid && tarefaForm.get('titulo')?.touched">
-          
-          <div *ngIf="tarefaForm.get('titulo')?.invalid && tarefaForm.get('titulo')?.touched" 
-               class="mt-1 text-sm text-red-600">
-            <div *ngIf="tarefaForm.get('titulo')?.errors?.['required']">
-              Título é obrigatório
-            </div>
-            <div *ngIf="tarefaForm.get('titulo')?.errors?.['minlength']">
-              Título deve ter pelo menos 3 caracteres
-            </div>
-          </div>
+            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
         </div>
 
-        <!-- Descrição -->
         <div>
-          <label for="descricao" class="block text-sm font-medium text-gray-700">
+          <label class="block text-sm font-medium text-gray-700 mb-1">
             Descrição
           </label>
           <textarea
-            id="descricao"
-            formControlName="descricao"
-            rows="4"
-            class="input-field mt-1"
-            placeholder="Descreva a tarefa em detalhes (opcional)">
-          </textarea>
+            [(ngModel)]="novaTarefa.descricao"
+            name="descricao"
+            placeholder="Digite uma descrição (opcional)"
+            rows="3"
+            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none"></textarea>
         </div>
-
-        <!-- Prioridade e Data de Vencimento -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        
+        <div class="grid grid-cols-2 gap-4">
           <div>
-            <label for="prioridade" class="block text-sm font-medium text-gray-700">
-              Prioridade *
+            <label class="block text-sm font-medium text-gray-700 mb-1">
+              Prioridade
             </label>
             <select
-              id="prioridade"
-              formControlName="prioridade"
-              class="input-field mt-1">
-              <option *ngFor="let prioridade of prioridades" [value]="prioridade.value">
-                {{ prioridade.label }}
-              </option>
+              [(ngModel)]="novaTarefa.prioridade"
+              name="prioridade"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+              <option value="BAIXA">Baixa</option>
+              <option value="MEDIA">Média</option>
+              <option value="ALTA">Alta</option>
+              <option value="URGENTE">Urgente</option>
             </select>
           </div>
 
           <div>
-            <label for="dataVencimento" class="block text-sm font-medium text-gray-700">
-              Data de Vencimento (Opcional)
-            </label>
-            <input
-              id="dataVencimento"
-              type="datetime-local"
-              formControlName="dataVencimento"
-              class="input-field mt-1">
-          </div>
-        </div>
-
-        <!-- Categoria e Cor -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div>
-            <label for="categoria" class="block text-sm font-medium text-gray-700">
+            <label class="block text-sm font-medium text-gray-700 mb-1">
               Categoria
             </label>
             <select
-              id="categoria"
-              formControlName="categoria"
-              class="input-field mt-1">
-              <option value="">Selecione uma categoria</option>
+              [(ngModel)]="novaTarefa.categoria"
+              name="categoria"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+              <option [value]="null">Selecione uma categoria</option>
               <option *ngFor="let categoria of categorias" [value]="categoria">
                 {{ categoria }}
               </option>
             </select>
-            
-            <!-- Campo para categoria customizada quando "Outros" for selecionado -->
-            <div *ngIf="tarefaForm.get('categoria')?.value === 'OUTROS'" class="mt-2">
-              <label for="categoriaCustomizada" class="block text-sm font-medium text-gray-700">
-                Especifique a categoria
-              </label>
-              <input
-                id="categoriaCustomizada"
-                type="text"
-                formControlName="categoriaCustomizada"
-                class="input-field mt-1"
-                placeholder="Digite sua categoria personalizada">
-            </div>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">
+            Data de Vencimento (opcional)
+          </label>
+          <input
+            type="date"
+            [(ngModel)]="novaTarefa.dataVencimento"
+            name="dataVencimento"
+            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+        </div>
+
+        <!-- Opções de Recorrência -->
+        <div class="border-t pt-4">
+          <div class="flex items-center space-x-2 mb-4">
+            <input
+              type="checkbox"
+              id="isRecorrente"
+              [(ngModel)]="novaTarefa.isRecorrente"
+              name="isRecorrente"
+              class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+            <label for="isRecorrente" class="text-sm font-medium text-gray-700">
+              Tarefa Recorrente
+            </label>
           </div>
 
-          <div>
-            <label for="cor" class="block text-sm font-medium text-gray-700">
-              Cor
-            </label>
-            <div class="flex items-center space-x-2 mt-1">
+          <div *ngIf="novaTarefa.isRecorrente" class="space-y-4 pl-6 border-l-2 border-blue-200">
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">
+                  Tipo
+                </label>
+                <select
+                  [(ngModel)]="novaTarefa.tipoRecorrencia"
+                  (change)="onTipoRecorrenciaChange()"
+                  name="tipoRecorrencia"
+                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                  <option *ngFor="let tipo of tiposRecorrencia" [value]="tipo.value">
+                    {{ tipo.label }}
+                  </option>
+                </select>
+              </div>
+              
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">
+                  A cada
+                </label>
+                <div class="flex items-center space-x-2">
+                  <input
+                    type="number"
+                    [(ngModel)]="novaTarefa.intervaloRecorrencia"
+                    name="intervaloRecorrencia"
+                    min="1"
+                    max="99"
+                    class="w-20 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                  <span class="text-sm text-gray-600">
+                    {{ novaTarefa.tipoRecorrencia === 'DIARIA' ? 'dia(s)' : 
+                       novaTarefa.tipoRecorrencia === 'SEMANAL' ? 'semana(s)' :
+                       novaTarefa.tipoRecorrencia === 'MENSAL' ? 'mês(es)' : 'ano(s)' }}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Dias da semana (apenas para recorrência semanal) -->
+            <div *ngIf="novaTarefa.tipoRecorrencia === 'SEMANAL'">
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                Repetir nos dias:
+              </label>
+              <div class="grid grid-cols-7 gap-2">
+                <button
+                  *ngFor="let dia of diasSemana"
+                  type="button"
+                  (click)="alternarDiaSemana(dia.value)"
+                  [class]="isDiaSelecionado(dia.value) 
+                    ? 'bg-blue-600 text-white border-blue-600' 
+                    : 'bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200'"
+                  class="px-3 py-2 text-xs font-medium border rounded-lg transition-colors">
+                  {{ dia.label }}
+                </button>
+              </div>
+            </div>
+
+            <!-- Data de fim da recorrência -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">
+                Terminar em (opcional)
+              </label>
               <input
-                id="cor"
-                type="color"
-                formControlName="cor"
-                class="w-12 h-10 border border-gray-300 rounded-lg cursor-pointer">
-              <input
-                type="text"
-                formControlName="cor"
-                class="input-field flex-1"
-                placeholder="#3498db">
+                type="date"
+                [(ngModel)]="novaTarefa.dataFimRecorrencia"
+                name="dataFimRecorrencia"
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+              <p class="text-xs text-gray-500 mt-1">
+                Deixe em branco para repetir indefinidamente
+              </p>
             </div>
           </div>
         </div>
@@ -146,28 +187,18 @@
           {{ errorMessage }}
         </div>
 
-        <!-- Actions -->
-        <div class="flex justify-end space-x-4 pt-6 border-t border-gray-200">
+        <div class="flex justify-end space-x-3 pt-4 border-t">
           <button
             type="button"
             (click)="cancelar()"
-            class="btn-secondary">
+            class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors">
             Cancelar
           </button>
-          
           <button
             type="submit"
-            [disabled]="tarefaForm.invalid || isLoading"
-            class="btn-primary disabled:opacity-50 disabled:cursor-not-allowed">
-            
-            <span *ngIf="!isLoading">Criar Tarefa</span>
-            <span *ngIf="isLoading" class="flex items-center">
-              <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-              </svg>
-              Criando...
-            </span>
+            [disabled]="!novaTarefa.titulo.trim() || isLoading"
+            class="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+            {{ novaTarefa.isRecorrente ? 'Criar Tarefa Recorrente' : 'Criar Tarefa' }}
           </button>
         </div>
       </form>

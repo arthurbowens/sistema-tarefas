@@ -1,0 +1,88 @@
+// Estilos específicos do calendário de tarefas
+
+.calendario-dia {
+  @apply relative min-h-[120px] p-2 bg-white hover:bg-gray-50 cursor-pointer transition-colors;
+  
+  &:hover {
+    .botao-adicionar-tarefa {
+      @apply opacity-100;
+    }
+  }
+  
+  &.dia-atual {
+    @apply bg-blue-50;
+  }
+  
+  &.dia-selecionado {
+    @apply bg-blue-100 ring-2 ring-blue-500;
+  }
+  
+  &.dia-outro-mes {
+    @apply text-gray-400 bg-gray-50;
+  }
+}
+
+.botao-adicionar-tarefa {
+  @apply opacity-0 group-hover:opacity-100 p-1 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded transition-all duration-200;
+}
+
+.tarefa-mini {
+  @apply text-xs p-1.5 rounded border truncate;
+  
+  &.urgente {
+    @apply bg-red-100 text-red-800 border-red-200;
+  }
+  
+  &.alta {
+    @apply bg-orange-100 text-orange-800 border-orange-200;
+  }
+  
+  &.media {
+    @apply bg-yellow-100 text-yellow-800 border-yellow-200;
+  }
+  
+  &.baixa {
+    @apply bg-green-100 text-green-800 border-green-200;
+  }
+}
+
+// Animações
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.calendario-dia {
+  animation: fadeIn 0.2s ease-out;
+}
+
+// Responsividade
+@media (max-width: 768px) {
+  .calendario-dia {
+    @apply min-h-[80px] p-1;
+  }
+  
+  .tarefa-mini {
+    @apply text-xs p-1;
+  }
+}
+
+// Estados de hover e focus
+.calendario-dia:focus {
+  @apply outline-none ring-2 ring-blue-500 ring-offset-2;
+}
+
+// Indicador de mais tarefas
+.indicador-mais-tarefas {
+  @apply text-xs text-gray-500 text-center py-1;
+  
+  &:hover {
+    @apply text-gray-700;
+  }
+}

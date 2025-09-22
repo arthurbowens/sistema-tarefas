@@ -1,15 +1,16 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { TarefaService } from '../../../core/services/tarefa.service';
 import { Tarefa, StatusTarefa, PrioridadeTarefa, CategoriaTarefa } from '../../../core/models/tarefa.model';
+import { CalendarioTarefasComponent } from './calendario-tarefas.component';
 import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-lista',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, CalendarioTarefasComponent],
   templateUrl: './lista.component.html',
   styleUrls: ['./lista.component.scss']
 })
@@ -21,15 +22,25 @@ export class ListaComponent implements OnInit {
   filtroCategoria: CategoriaTarefa | null = null;
   termoBusca = '';
   categorias: CategoriaTarefa[] = [];
+  visualizacaoAtual: 'lista' | 'calendario' = 'lista';
+  dataSelecionada = new Date();
 
   constructor(
     private tarefaService: TarefaService,
-    public router: Router
+    public router: Router,
+    private route: ActivatedRoute
   ) {}
 
   ngOnInit(): void {
     this.carregarTarefas();
     this.carregarCategorias();
+    
+    // Verificar se deve mostrar o calendário por padrão
+    this.route.queryParams.subscribe(params => {
+      if (params['view'] === 'calendario') {
+        this.visualizacaoAtual = 'calendario';
+      }
+    });
   }
 
   carregarTarefas(): void {
@@ -112,9 +123,6 @@ export class ListaComponent implements OnInit {
     });
   }
 
-  navegarParaCriar(): void {
-    this.router.navigate(['/tarefas/criar']);
-  }
 
   navegarParaDetalhes(id: number): void {
     this.router.navigate(['/tarefas/detalhes', id]);
@@ -239,5 +247,36 @@ export class ListaComponent implements OnInit {
 
   getCompartilhamentosTotal(tarefa: Tarefa): number {
     return tarefa.compartilhamentos ? tarefa.compartilhamentos.length : 0;
+  }
+
+  alternarVisualizacao(): void {
+    this.visualizacaoAtual = this.visualizacaoAtual === 'lista' ? 'calendario' : 'lista';
+  }
+
+  onDiaSelecionado(data: Date): void {
+    this.dataSelecionada = data;
+    // Filtrar tarefas pela data selecionada
+    this.filtrarPorData(data);
+  }
+
+
+  filtrarPorData(data: Date): void {
+    const dataInicio = new Date(data);
+    dataInicio.setHours(0, 0, 0, 0);
+    
+    const dataFim = new Date(data);
+    dataFim.setHours(23, 59, 59, 999);
+
+    this.tarefaService.buscarComFiltros({
+      inicio: dataInicio.toISOString(),
+      fim: dataFim.toISOString()
+    }).subscribe({
+      next: (tarefas) => {
+        this.tarefas = tarefas;
+      },
+      error: () => {
+        // Em caso de erro, manter lista atual
+      }
+    });
   }
 }

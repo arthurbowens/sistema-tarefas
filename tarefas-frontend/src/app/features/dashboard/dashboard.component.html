@@ -39,19 +39,19 @@
     <!-- Quick Actions -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
       <button
-        (click)="navegarParaCriarTarefa()"
+        (click)="navegarParaCalendario()"
         class="card hover:shadow-lg transition-shadow cursor-pointer text-left">
         <div class="flex items-center">
           <div class="flex-shrink-0">
             <div class="w-8 h-8 bg-primary-100 rounded-lg flex items-center justify-center">
               <svg class="w-5 h-5 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
               </svg>
             </div>
           </div>
           <div class="ml-4">
-            <h3 class="text-lg font-medium text-gray-900">Nova Tarefa</h3>
-            <p class="text-sm text-gray-500">Criar uma nova tarefa</p>
+            <h3 class="text-lg font-medium text-gray-900">Calendário</h3>
+            <p class="text-sm text-gray-500">Ver e criar tarefas no calendário</p>
           </div>
         </div>
       </button>
@@ -92,23 +92,6 @@
         </div>
       </button>
 
-      <button
-        (click)="navegarParaGoogleCalendar()"
-        class="card hover:shadow-lg transition-shadow cursor-pointer text-left">
-        <div class="flex items-center">
-          <div class="flex-shrink-0">
-            <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
-              <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-              </svg>
-            </div>
-          </div>
-          <div class="ml-4">
-            <h3 class="text-lg font-medium text-gray-900">Google Calendar</h3>
-            <p class="text-sm text-gray-500">Sincronizar com calendário</p>
-          </div>
-        </div>
-      </button>
     </div>
 
     <!-- Statistics -->
@@ -193,12 +176,12 @@
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
         </svg>
         <h3 class="mt-2 text-sm font-medium text-gray-900">Nenhuma tarefa encontrada</h3>
-        <p class="mt-1 text-sm text-gray-500">Comece criando uma nova tarefa.</p>
+        <p class="mt-1 text-sm text-gray-500">Acesse o calendário para criar suas tarefas.</p>
         <div class="mt-6">
           <button
-            (click)="navegarParaCriarTarefa()"
+            (click)="navegarParaCalendario()"
             class="btn-primary">
-            Nova Tarefa
+            Ir para Calendário
           </button>
         </div>
       </div>

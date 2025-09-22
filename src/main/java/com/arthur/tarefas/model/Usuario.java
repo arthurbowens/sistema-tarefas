@@ -46,11 +46,6 @@ public class Usuario implements UserDetails {
     
     private boolean ativo = true;
     
-    @Column(name = "google_calendar_token")
-    private String googleCalendarToken;
-    
-    @Column(name = "google_calendar_refresh_token")
-    private String googleCalendarRefreshToken;
     
     @PrePersist
     protected void onCreate() {

@@ -20,5 +20,4 @@ public class UsuarioDTO {
     private LocalDateTime dataCriacao;
     private LocalDateTime ultimoAcesso;
     private boolean ativo;
-    private boolean googleCalendarConectado;
 }

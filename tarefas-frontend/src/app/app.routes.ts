@@ -4,7 +4,6 @@ import { CadastroComponent } from './features/auth/cadastro/cadastro.component';
 import { DashboardComponent } from './features/dashboard/dashboard.component';
 import { AuthGuard } from './core/guards/auth.guard';
 import { DashboardEstatisticasComponent } from './features/estatisticas/components/dashboard/dashboard.component';
-import { IntegracaoCalendarComponent } from './features/google-calendar/components/integracao-calendar/integracao-calendar.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: '/dashboard', pathMatch: 'full' },
@@ -28,11 +27,6 @@ export const routes: Routes = [
   { 
     path: 'estatisticas', 
     component: DashboardEstatisticasComponent,
-    canActivate: [AuthGuard]
-  },
-  { 
-    path: 'google-calendar', 
-    component: IntegracaoCalendarComponent,
     canActivate: [AuthGuard]
   },
   { path: '**', redirectTo: '/dashboard' }

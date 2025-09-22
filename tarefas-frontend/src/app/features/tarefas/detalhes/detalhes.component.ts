@@ -42,19 +42,6 @@ export class DetalhesComponent implements OnInit {
     });
   }
 
-  navegarParaEditar(): void {
-    this.router.navigate(['/tarefas/editar', this.tarefa?.id]);
-  }
-
-  excluirTarefa(): void {
-    if (confirm('Tem certeza que deseja excluir esta tarefa?')) {
-      this.tarefaService.excluirTarefa(this.tarefa!.id).subscribe({
-        next: () => {
-          this.router.navigate(['/tarefas']);
-        }
-      });
-    }
-  }
 
   marcarComoConcluida(): void {
     this.tarefaService.marcarComoConcluida(this.tarefa!.id).subscribe({

@@ -7,7 +7,6 @@ export interface Usuario {
   dataCriacao: string;
   ultimoAcesso?: string;
   ativo: boolean;
-  googleCalendarConectado: boolean;
 }
 
 export interface LoginRequest {

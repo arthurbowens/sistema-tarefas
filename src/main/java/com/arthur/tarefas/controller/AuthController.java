@@ -26,6 +26,14 @@ public class AuthController {
     private final JwtUtil jwtUtil;
     private final UsuarioService usuarioService;
     
+    @GetMapping("/test")
+    public ResponseEntity<Map<String, String>> healthCheck() {
+        Map<String, String> response = new HashMap<>();
+        response.put("status", "OK");
+        response.put("message", "Backend is running");
+        return ResponseEntity.ok(response);
+    }
+    
     @PostMapping("/login")
     public ResponseEntity<Map<String, String>> login(@RequestBody LoginRequest loginRequest) {
         try {

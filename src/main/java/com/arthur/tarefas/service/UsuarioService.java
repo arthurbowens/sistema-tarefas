@@ -88,21 +88,6 @@ public class UsuarioService {
         usuarioRepository.save(usuario);
     }
     
-    public void conectarGoogleCalendar(Long id, String token, String refreshToken) {
-        Usuario usuario = usuarioRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
-        usuario.setGoogleCalendarToken(token);
-        usuario.setGoogleCalendarRefreshToken(refreshToken);
-        usuarioRepository.save(usuario);
-    }
-    
-    public void desconectarGoogleCalendar(Long id) {
-        Usuario usuario = usuarioRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
-        usuario.setGoogleCalendarToken(null);
-        usuario.setGoogleCalendarRefreshToken(null);
-        usuarioRepository.save(usuario);
-    }
     
     public UsuarioDTO converterParaDTO(Usuario usuario) {
         UsuarioDTO dto = new UsuarioDTO();
@@ -116,7 +101,6 @@ public class UsuarioService {
         dto.setDataCriacao(usuario.getDataCriacao());
         dto.setUltimoAcesso(usuario.getUltimoAcesso());
         dto.setAtivo(usuario.isAtivo());
-        dto.setGoogleCalendarConectado(usuario.getGoogleCalendarToken() != null);
         return dto;
     }
 }

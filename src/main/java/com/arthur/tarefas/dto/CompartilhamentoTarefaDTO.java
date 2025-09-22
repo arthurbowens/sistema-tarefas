@@ -1,7 +1,6 @@
 package com.arthur.tarefas.dto;
 
 import com.arthur.tarefas.enums.TipoCompartilhamento;
-import com.arthur.tarefas.dto.TarefaDTO;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

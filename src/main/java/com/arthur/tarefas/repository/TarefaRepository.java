@@ -31,7 +31,7 @@ public interface TarefaRepository extends JpaRepository<Tarefa, Long> {
     
     List<Tarefa> findByTarefaPai(Tarefa tarefaPai);
     
-    @Query("SELECT t FROM Tarefa t WHERE t.usuario = :usuario AND t.tarefaPai IS NULL")
+    @Query("SELECT t FROM Tarefa t WHERE t.usuario = :usuario")
     List<Tarefa> findTarefasPrincipaisByUsuario(@Param("usuario") Usuario usuario);
     
     @Query("SELECT t FROM Tarefa t JOIN CompartilhamentoTarefa c ON t.id = c.tarefa.id WHERE c.usuario = :usuario AND c.conviteAceito = true")

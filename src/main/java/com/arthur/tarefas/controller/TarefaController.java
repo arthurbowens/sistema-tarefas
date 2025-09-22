@@ -6,6 +6,7 @@ import com.arthur.tarefas.enums.PrioridadeTarefa;
 import com.arthur.tarefas.enums.StatusTarefa;
 import com.arthur.tarefas.model.Usuario;
 import com.arthur.tarefas.service.TarefaService;
+import com.arthur.tarefas.service.TarefaRecorrenteService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
@@ -23,6 +24,7 @@ import java.util.Map;
 public class TarefaController {
     
     private final TarefaService tarefaService;
+    private final TarefaRecorrenteService tarefaRecorrenteService;
     
     @PostMapping
     public ResponseEntity<TarefaDTO> criarTarefa(@RequestBody TarefaDTO tarefaDTO, 
@@ -73,12 +75,12 @@ public class TarefaController {
     
     @GetMapping("/filtros")
     public ResponseEntity<List<TarefaDTO>> buscarComFiltros(
-            @RequestParam(required = false) StatusTarefa status,
-            @RequestParam(required = false) PrioridadeTarefa prioridade,
-            @RequestParam(required = false) CategoriaTarefa categoria,
-            @RequestParam(required = false) String termo,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime inicio,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime fim,
+            @RequestParam(value = "status", required = false) StatusTarefa status,
+            @RequestParam(value = "prioridade", required = false) PrioridadeTarefa prioridade,
+            @RequestParam(value = "categoria", required = false) CategoriaTarefa categoria,
+            @RequestParam(value = "termo", required = false) String termo,
+            @RequestParam(value = "inicio", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime inicio,
+            @RequestParam(value = "fim", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime fim,
             Authentication authentication) {
         Usuario usuario = (Usuario) authentication.getPrincipal();
         List<TarefaDTO> tarefas = tarefaService.buscarComFiltros(usuario.getId(), status, prioridade, categoria, termo, inicio, fim);
@@ -142,5 +144,13 @@ public class TarefaController {
             "tarefasAtrasadas", 0
         );
         return ResponseEntity.ok(stats);
+    }
+    
+    @PostMapping("/recorrente")
+    public ResponseEntity<List<TarefaDTO>> criarTarefaRecorrente(@RequestBody TarefaDTO tarefaDTO, 
+                                                               Authentication authentication) {
+        Usuario usuario = (Usuario) authentication.getPrincipal();
+        List<TarefaDTO> tarefasCriadas = tarefaRecorrenteService.criarTarefasRecorrentes(tarefaDTO, usuario.getId());
+        return ResponseEntity.ok(tarefasCriadas);
     }
 }

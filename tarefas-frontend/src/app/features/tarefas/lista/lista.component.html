@@ -14,19 +14,36 @@
           <h1 class="text-xl font-semibold text-gray-900">Tarefas</h1>
         </div>
         
-        <button
-          (click)="navegarParaCriar()"
-          class="btn-primary">
-          Nova Tarefa
-        </button>
+        <div class="flex items-center space-x-3">
+          <!-- Botão de alternar visualização -->
+          <button
+            (click)="alternarVisualizacao()"
+            [class]="visualizacaoAtual === 'calendario' ? 'btn-secondary' : 'btn-outline'"
+            class="flex items-center space-x-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+            </svg>
+            <span>{{ visualizacaoAtual === 'calendario' ? 'Lista' : 'Calendário' }}</span>
+          </button>
+        </div>
       </div>
     </div>
   </header>
 
   <!-- Main Content -->
   <main class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-    <!-- Filters -->
-    <div class="card mb-6">
+    <!-- Visualização do Calendário -->
+    <div *ngIf="visualizacaoAtual === 'calendario'" class="mb-6">
+      <app-calendario-tarefas
+        [tarefas]="tarefas"
+        [dataSelecionada]="dataSelecionada"
+        (diaSelecionado)="onDiaSelecionado($event)"
+        (tarefaCriada)="carregarTarefas()">
+      </app-calendario-tarefas>
+    </div>
+
+    <!-- Filters (apenas para visualização em lista) -->
+    <div *ngIf="visualizacaoAtual === 'lista'" class="card mb-6">
       <div class="flex flex-col sm:flex-row gap-4">
         <!-- Search -->
         <div class="flex-1">
@@ -83,7 +100,7 @@
     </div>
 
     <!-- Tasks List -->
-    <div class="card">
+    <div *ngIf="visualizacaoAtual === 'lista'" class="card">
       <div class="card-header">
         <h3 class="text-lg font-medium text-gray-900">Lista de Tarefas</h3>
       </div>
@@ -99,11 +116,9 @@
         <h3 class="mt-2 text-sm font-medium text-gray-900">Nenhuma tarefa encontrada</h3>
         <p class="mt-1 text-sm text-gray-500">Comece criando uma nova tarefa.</p>
         <div class="mt-6">
-          <button
-            (click)="navegarParaCriar()"
-            class="btn-primary">
-            Nova Tarefa
-          </button>
+          <p class="text-sm text-gray-500">
+            Clique no calendário para criar uma nova tarefa
+          </p>
         </div>
       </div>
 

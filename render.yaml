@@ -5,6 +5,7 @@ services:
     plan: free
     buildCommand: ./mvnw clean package -DskipTests
     startCommand: java -jar target/tarefas-1.0-SNAPSHOT.jar
+    healthCheckPath: /api/auth/test
     envVars:
       - key: SPRING_PROFILES_ACTIVE
         value: production
@@ -16,8 +17,6 @@ services:
         generateValue: true
       - key: JWT_EXPIRATION
         value: "86400000"
-      - key: GOOGLE_CALENDAR_CREDENTIALS_PATH
-        value: "/app/credentials.json"
 
 databases:
   - name: tarefas-db

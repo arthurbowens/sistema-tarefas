@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { Tarefa, StatusTarefa, PrioridadeTarefa, CategoriaTarefa, ChecklistItem, CompartilhamentoTarefa, Estatisticas } from '../models/tarefa.model';
+import { Tarefa, StatusTarefa, PrioridadeTarefa, CategoriaTarefa, ChecklistItem, CompartilhamentoTarefa, Estatisticas, TipoRecorrencia, DiaSemana } from '../models/tarefa.model';
 import { Usuario } from '../models/usuario.model';
 
 @Injectable({
@@ -15,6 +15,16 @@ export class TarefaService {
   // Tarefas
   criarTarefa(tarefa: Partial<Tarefa>): Observable<Tarefa> {
     return this.http.post<Tarefa>(`${this.API_URL}/tarefas`, tarefa);
+  }
+
+  criarTarefaRecorrente(tarefa: Partial<Tarefa> & {
+    isRecorrente: boolean;
+    tipoRecorrencia?: TipoRecorrencia;
+    intervaloRecorrencia?: number;
+    dataFimRecorrencia?: string;
+    diasDaSemana?: DiaSemana[];
+  }): Observable<Tarefa[]> {
+    return this.http.post<Tarefa[]>(`${this.API_URL}/tarefas/recorrente`, tarefa);
   }
 
   listarTarefas(): Observable<Tarefa[]> {
@@ -159,16 +169,4 @@ export class TarefaService {
     return this.http.get<Usuario[]>(`${this.API_URL}/auth/usuarios/buscar`, { params });
   }
 
-  // Google Calendar
-  obterUrlAutenticacaoGoogle(): Observable<{ authUrl: string }> {
-    return this.http.get<{ authUrl: string }>(`${this.API_URL}/google-calendar/auth-url`);
-  }
-
-  sincronizarComGoogle(code: string): Observable<any> {
-    return this.http.post(`${this.API_URL}/google-calendar/callback`, { code });
-  }
-
-  desconectarGoogleCalendar(): Observable<void> {
-    return this.http.delete<void>(`${this.API_URL}/google-calendar/desconectar`);
-  }
 }

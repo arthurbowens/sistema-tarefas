@@ -93,8 +93,6 @@
             <scope>runtime</scope>
         </dependency>
 
-        <!-- Google Calendar API (simplificado) -->
-        <!-- Usando apenas RestTemplate do Spring para chamadas HTTP -->
 
         <!-- Swagger/OpenAPI Documentation -->
         <dependency>

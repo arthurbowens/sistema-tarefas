@@ -3,6 +3,8 @@ package com.arthur.tarefas.model;
 import com.arthur.tarefas.enums.CategoriaTarefa;
 import com.arthur.tarefas.enums.PrioridadeTarefa;
 import com.arthur.tarefas.enums.StatusTarefa;
+import com.arthur.tarefas.enums.TipoRecorrencia;
+import com.arthur.tarefas.enums.DiaSemana;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -69,14 +71,32 @@ public class Tarefa {
     @OneToMany(mappedBy = "tarefa", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<CompartilhamentoTarefa> compartilhamentos = new ArrayList<>();
     
-    @Column(name = "google_event_id")
-    private String googleEventId;
     
     @Column(name = "cor")
     private String cor = "#3498db";
     
     @Column(name = "tags")
     private String tags; // Separadas por vírgula
+    
+    // Campos de recorrência
+    @Column(name = "is_recorrente")
+    private Boolean isRecorrente = false;
+    
+    @Enumerated(EnumType.STRING)
+    @Column(name = "tipo_recorrencia")
+    private TipoRecorrencia tipoRecorrencia;
+    
+    @Column(name = "intervalo_recorrencia")
+    private Integer intervaloRecorrencia = 1;
+    
+    @Column(name = "data_fim_recorrencia")
+    private LocalDateTime dataFimRecorrencia;
+    
+    @ElementCollection(targetClass = DiaSemana.class)
+    @Enumerated(EnumType.STRING)
+    @CollectionTable(name = "tarefa_dias_semana", joinColumns = @JoinColumn(name = "tarefa_id"))
+    @Column(name = "dia_semana")
+    private List<DiaSemana> diasDaSemana = new ArrayList<>();
     
     @PrePersist
     protected void onCreate() {

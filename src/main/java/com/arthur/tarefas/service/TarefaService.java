@@ -217,8 +217,8 @@ public class TarefaService {
         if (inicio != null && fim != null) {
             tarefas = tarefas.stream()
                     .filter(t -> t.getDataVencimento() != null && 
-                               t.getDataVencimento().isAfter(inicio) && 
-                               t.getDataVencimento().isBefore(fim))
+                               !t.getDataVencimento().isBefore(inicio) && 
+                               !t.getDataVencimento().isAfter(fim))
                     .collect(Collectors.toList());
         }
         
@@ -257,7 +257,6 @@ public class TarefaService {
         dto.setDataAtualizacao(tarefa.getDataAtualizacao());
         dto.setCor(tarefa.getCor());
         dto.setTags(tarefa.getTags());
-        dto.setGoogleEventId(tarefa.getGoogleEventId());
         dto.setTarefaPaiId(tarefa.getTarefaPai() != null ? tarefa.getTarefaPai().getId() : null);
         
         // Converter usuário

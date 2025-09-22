@@ -59,17 +59,14 @@ export class DashboardComponent implements OnInit {
     this.router.navigate(['/tarefas']);
   }
 
-  navegarParaCriarTarefa(): void {
-    this.router.navigate(['/tarefas/criar']);
+  navegarParaCalendario(): void {
+    this.router.navigate(['/tarefas'], { queryParams: { view: 'calendario' } });
   }
 
   navegarParaEstatisticas(): void {
     this.router.navigate(['/estatisticas']);
   }
 
-  navegarParaGoogleCalendar(): void {
-    this.router.navigate(['/google-calendar']);
-  }
 
   obterCorPrioridade(prioridade: PrioridadeTarefa): string {
     switch (prioridade) {

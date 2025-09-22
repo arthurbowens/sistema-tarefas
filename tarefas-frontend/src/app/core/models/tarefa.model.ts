@@ -38,12 +38,34 @@ export interface Tarefa {
   dataAtualizacao: string;
   cor: string;
   tags?: string;
-  googleEventId?: string;
   tarefaPaiId?: number;
   checklist: ChecklistItem[];
   compartilhamentos: CompartilhamentoTarefa[];
   subtarefas: Tarefa[];
   usuario: Usuario;
+  // Campos de recorrência
+  isRecorrente?: boolean;
+  tipoRecorrencia?: TipoRecorrencia;
+  intervaloRecorrencia?: number;
+  dataFimRecorrencia?: string;
+  diasDaSemana?: DiaSemana[];
+}
+
+export enum TipoRecorrencia {
+  DIARIA = 'DIARIA',
+  SEMANAL = 'SEMANAL',
+  MENSAL = 'MENSAL',
+  ANUAL = 'ANUAL'
+}
+
+export enum DiaSemana {
+  DOMINGO = 'DOMINGO',
+  SEGUNDA = 'SEGUNDA',
+  TERCA = 'TERCA',
+  QUARTA = 'QUARTA',
+  QUINTA = 'QUINTA',
+  SEXTA = 'SEXTA',
+  SABADO = 'SABADO'
 }
 
 export interface ChecklistItem {
