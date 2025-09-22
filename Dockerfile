@@ -17,7 +17,7 @@ COPY src/ src/
 RUN mvn clean package -DskipTests
 
 # Use OpenJDK runtime
-FROM openjdk:17-jre-slim
+FROM openjdk:17-jdk-slim
 
 # Set working directory
 WORKDIR /app
