@@ -1,20 +1,32 @@
-# Use OpenJDK 17
-FROM openjdk:17-jdk-slim
+# Use Maven with OpenJDK 17
+FROM maven:3.9.6-openjdk-17-slim
 
 # Set working directory
 WORKDIR /app
 
-# Copy everything
-COPY . .
+# Copy pom.xml first for better caching
+COPY pom.xml .
 
-# Make mvnw executable
-RUN chmod +x mvnw
+# Download dependencies
+RUN mvn dependency:go-offline -B
+
+# Copy source code
+COPY src/ src/
 
 # Build the application
-RUN ./mvnw clean package -DskipTests
+RUN mvn clean package -DskipTests
+
+# Use OpenJDK runtime
+FROM openjdk:17-jre-slim
+
+# Set working directory
+WORKDIR /app
+
+# Copy the built jar
+COPY --from=0 /app/target/tarefas-1.0-SNAPSHOT.jar app.jar
 
 # Expose port
 EXPOSE 8080
 
 # Run the application
-CMD ["java", "-jar", "target/tarefas-1.0-SNAPSHOT.jar"]
+CMD ["java", "-jar", "app.jar"]
