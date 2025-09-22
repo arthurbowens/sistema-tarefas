@@ -1,5 +1,5 @@
 # Use Maven with OpenJDK 17
-FROM maven:3.9.6-openjdk-17-slim
+FROM maven:3.9.6-openjdk-17
 
 # Set working directory
 WORKDIR /app
@@ -17,7 +17,7 @@ COPY src/ src/
 RUN mvn clean package -DskipTests
 
 # Use OpenJDK runtime
-FROM openjdk:17-jdk-slim
+FROM openjdk:17-jre-slim
 
 # Set working directory
 WORKDIR /app
