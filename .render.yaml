@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: tarefas-backend
+    env: java
+    plan: free
+    buildCommand: ./mvnw clean package -DskipTests
+    startCommand: java -jar target/tarefas-1.0-SNAPSHOT.jar
+    healthCheckPath: /api/auth/test
+    envVars:
+      - key: SPRING_PROFILES_ACTIVE
+        value: production
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_EXPIRATION
+        value: "86400000"
