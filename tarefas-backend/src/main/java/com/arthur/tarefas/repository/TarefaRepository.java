@@ -39,4 +39,6 @@ public interface TarefaRepository extends JpaRepository<Tarefa, Long> {
     
     @Query("SELECT COUNT(t) FROM Tarefa t WHERE t.usuario = :usuario AND t.status = :status")
     Long countByUsuarioAndStatus(@Param("usuario") Usuario usuario, @Param("status") StatusTarefa status);
+    
+    List<Tarefa> findByUsuarioIdAndIsRecorrenteTrue(Long usuarioId);
 }
