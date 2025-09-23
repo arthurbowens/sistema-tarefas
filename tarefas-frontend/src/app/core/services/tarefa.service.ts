@@ -3,12 +3,13 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Tarefa, StatusTarefa, PrioridadeTarefa, CategoriaTarefa, ChecklistItem, CompartilhamentoTarefa, Estatisticas, TipoRecorrencia, DiaSemana } from '../models/tarefa.model';
 import { Usuario } from '../models/usuario.model';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class TarefaService {
-  private readonly API_URL = 'http://localhost:8080/api';
+  private readonly API_URL = `${environment.apiUrl}/api`;
 
   constructor(private http: HttpClient) { }
 
