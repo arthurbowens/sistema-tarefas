@@ -82,17 +82,84 @@ export class CalendarioTarefasComponent implements OnInit, OnChanges {
   ngOnInit(): void {
     this.gerarCalendario();
     this.carregarCategorias();
-    this.carregarTarefasDoMes();
+    // Remover carregarTarefasDoMes() - as tarefas já vêm do componente pai
   }
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['tarefas'] || changes['dataSelecionada']) {
+      console.log('🔄 Calendário: tarefas recebidas:', this.tarefas.length);
+      console.log('📋 Tarefas:', this.tarefas);
+      
+      // Verificar se há tarefas recorrentes
+      const tarefasRecorrentes = this.tarefas.filter(t => t.isRecorrente);
+      console.log('🔄 Tarefas recorrentes encontradas:', tarefasRecorrentes.length);
+      tarefasRecorrentes.forEach(t => {
+        console.log(`- ${t.titulo}: isRecorrente=${t.isRecorrente}, diasDaSemana=${JSON.stringify(t.diasDaSemana)}`);
+      });
+      
+      // Regenerar calendário quando tarefas mudam
       this.gerarCalendario();
     }
   }
 
+  // Método para forçar regeneração do calendário
+  regenerarCalendario(): void {
+    this.gerarCalendario();
+  }
+
+  // Verificar se uma tarefa está vencida
+  tarefaVencida(tarefa: Tarefa, data: Date): boolean {
+    if (!tarefa.dataVencimento) return false;
+    
+    const dataVencimento = new Date(tarefa.dataVencimento);
+    dataVencimento.setHours(23, 59, 59, 999);
+    
+    return data > dataVencimento && tarefa.status !== StatusTarefa.CONCLUIDA;
+  }
+
+  // Remover tarefa vencida
+  removerTarefaVencida(tarefa: Tarefa, event: Event): void {
+    event.stopPropagation();
+    
+    if (confirm(`Deseja remover a tarefa "${tarefa.titulo}" do calendário?`)) {
+      // Marcar como cancelada para não aparecer mais
+      this.tarefaService.atualizarTarefa(tarefa.id, { status: StatusTarefa.CANCELADA }).subscribe({
+        next: () => {
+          this.tarefaCriada.emit(); // Recarregar tarefas
+        },
+        error: (error) => {
+          console.error('Erro ao remover tarefa:', error);
+        }
+      });
+    }
+  }
+
+  // Obter tooltip com informações da tarefa
+  obterTooltipTarefa(tarefa: Tarefa): string {
+    let tooltip = `Tarefa: ${tarefa.titulo}\nStatus: ${tarefa.status}`;
+    
+    if (tarefa.dataInicio) {
+      const dataInicio = new Date(tarefa.dataInicio);
+      tooltip += `\nInício: ${dataInicio.toLocaleDateString('pt-BR')}`;
+    }
+    
+    if (tarefa.dataVencimento) {
+      const dataVencimento = new Date(tarefa.dataVencimento);
+      tooltip += `\nVencimento: ${dataVencimento.toLocaleDateString('pt-BR')}`;
+    }
+    
+    if (tarefa.isRecorrente) {
+      tooltip += `\nRecorrente: ${tarefa.tipoRecorrencia}`;
+    }
+    
+    return tooltip;
+  }
+
   gerarCalendario(): void {
     this.diasCalendario = [];
+    
+    console.log('📅 Gerando calendário...');
+    console.log('📋 Total de tarefas:', this.tarefas.length);
     
     const primeiroDiaMes = new Date(this.mesAtual.getFullYear(), this.mesAtual.getMonth(), 1);
     const ultimoDiaMes = new Date(this.mesAtual.getFullYear(), this.mesAtual.getMonth() + 1, 0);
@@ -126,19 +193,12 @@ export class CalendarioTarefasComponent implements OnInit, OnChanges {
     const isSelected = this.isMesmoDia(data, this.dataSelecionada);
     
     const tarefasDoDia = this.tarefas.filter(tarefa => {
-      // Para tarefas não recorrentes, verificar data de vencimento
-      if (!tarefa.isRecorrente) {
-        if (!tarefa.dataVencimento) return false;
-        const dataVencimento = new Date(tarefa.dataVencimento);
-        return this.isMesmoDia(dataVencimento, data);
-      }
-      // Para tarefas recorrentes, a lógica será tratada em gerarTarefasRecorrentesParaDia
-      return false;
+      // Verificar se a tarefa deve aparecer neste dia
+      return this.tarefaDeveAparecerNoDia(tarefa, data);
     });
 
-    // Adicionar tarefas recorrentes que devem aparecer neste dia
-    const tarefasRecorrentes = this.gerarTarefasRecorrentesParaDia(data);
-    tarefasDoDia.push(...tarefasRecorrentes);
+    // CORREÇÃO: Não adicionar tarefas recorrentes aqui pois já estão incluídas no filtro acima
+    // As tarefas recorrentes já são processadas por tarefaDeveAparecerNoDia()
 
     return {
       data: new Date(data),
@@ -154,6 +214,138 @@ export class CalendarioTarefasComponent implements OnInit, OnChanges {
     return data1.getFullYear() === data2.getFullYear() &&
            data1.getMonth() === data2.getMonth() &&
            data1.getDate() === data2.getDate();
+  }
+
+  tarefaDeveAparecerNoDia(tarefa: Tarefa, data: Date): boolean {
+    // Se a tarefa já foi concluída, não aparece mais
+    if (tarefa.status === StatusTarefa.CONCLUIDA) {
+      return false;
+    }
+
+    // Se a tarefa foi cancelada, não aparece
+    if (tarefa.status === StatusTarefa.CANCELADA) {
+      return false;
+    }
+
+    // Para tarefas recorrentes, usar lógica específica
+    if (tarefa.isRecorrente) {
+      console.log(`🔍 Tarefa RECORRENTE: ${tarefa.titulo}`);
+      console.log(`📅 Data: ${data.toDateString()}`);
+      console.log(`📋 Dados da tarefa:`, {
+        isRecorrente: tarefa.isRecorrente,
+        tipoRecorrencia: tarefa.tipoRecorrencia,
+        diasDaSemana: tarefa.diasDaSemana,
+        dataCriacao: tarefa.dataCriacao
+      });
+      return this.tarefaRecorrenteDeveAparecerNoDia(tarefa, data);
+    }
+
+    // Para tarefas não recorrentes
+    const dataComparacao = new Date(data);
+    dataComparacao.setHours(0, 0, 0, 0);
+
+    // Se tem data de início, verificar se já passou
+    if (tarefa.dataInicio) {
+      const dataInicio = new Date(tarefa.dataInicio);
+      dataInicio.setHours(0, 0, 0, 0);
+      if (dataComparacao < dataInicio) {
+        return false; // Ainda não começou
+      }
+    }
+
+    // Se tem data de vencimento, verificar se já passou
+    if (tarefa.dataVencimento) {
+      const dataVencimento = new Date(tarefa.dataVencimento);
+      dataVencimento.setHours(23, 59, 59, 999);
+      if (dataComparacao > dataVencimento) {
+        return false; // Já venceu
+      }
+    }
+
+    // Se tem data de vencimento, aparecer desde hoje até o dia de vencimento
+    if (tarefa.dataVencimento) {
+      const hoje = new Date();
+      hoje.setHours(0, 0, 0, 0);
+      return dataComparacao >= hoje; // Aparece desde hoje até o vencimento
+    }
+
+    // Se não tem data de vencimento, aparecer em todos os dias (tarefas pendentes)
+    return true;
+  }
+
+  tarefaRecorrenteDeveAparecerNoDia(tarefa: Tarefa, data: Date): boolean {
+    if (!tarefa.isRecorrente) return false;
+
+    console.log(`🔍 Verificando tarefa recorrente: ${tarefa.titulo}`);
+    console.log(`📅 Data: ${data.toDateString()}`);
+    console.log(`📋 Dados:`, {
+      isRecorrente: tarefa.isRecorrente,
+      tipoRecorrencia: tarefa.tipoRecorrencia,
+      diasDaSemana: tarefa.diasDaSemana,
+      dataInicio: tarefa.dataInicio,
+      dataVencimento: tarefa.dataVencimento,
+      dataCriacao: tarefa.dataCriacao
+    });
+
+    const dataComparacao = new Date(data);
+    dataComparacao.setHours(0, 0, 0, 0);
+
+    // Verificar data de início
+    if (tarefa.dataInicio) {
+      const dataInicio = new Date(tarefa.dataInicio);
+      dataInicio.setHours(0, 0, 0, 0);
+      if (dataComparacao < dataInicio) {
+        console.log(`❌ Não começou ainda`);
+        return false; // Ainda não começou
+      }
+    }
+
+    // Verificar data de fim da recorrência (dataVencimento para tarefas recorrentes)
+    if (tarefa.dataVencimento) {
+      const dataFim = new Date(tarefa.dataVencimento);
+      dataFim.setHours(23, 59, 59, 999);
+      if (dataComparacao > dataFim) {
+        console.log(`❌ Recorrência terminou`);
+        return false; // Já terminou a recorrência
+      }
+    }
+
+    // Se não tem data de início, usar data de criação
+    const dataInicio = tarefa.dataInicio ? new Date(tarefa.dataInicio) : new Date(tarefa.dataCriacao);
+    dataInicio.setHours(0, 0, 0, 0);
+
+    // Verificar se a data está dentro do período de recorrência
+    if (dataComparacao < dataInicio) {
+      console.log(`❌ Antes da data de início`);
+      return false;
+    }
+
+    // Se tem dias da semana configurados, verificar se o dia atual está na lista
+    if (tarefa.diasDaSemana && tarefa.diasDaSemana.length > 0) {
+      const diaSemana = data.getDay(); // 0 = Domingo, 1 = Segunda, etc.
+      const diasSemanaMap: { [key: number]: DiaSemana } = {
+        0: DiaSemana.DOMINGO,
+        1: DiaSemana.SEGUNDA,
+        2: DiaSemana.TERCA,
+        3: DiaSemana.QUARTA,
+        4: DiaSemana.QUINTA,
+        5: DiaSemana.SEXTA,
+        6: DiaSemana.SABADO
+      };
+      
+      const diaSemanaAtual = diasSemanaMap[diaSemana];
+      const deveAparecer = tarefa.diasDaSemana.includes(diaSemanaAtual);
+      
+      console.log(`📅 Dia da semana atual: ${diaSemanaAtual} (${diaSemana})`);
+      console.log(`📋 Dias configurados: [${tarefa.diasDaSemana.join(', ')}]`);
+      console.log(`✅ Deve aparecer: ${deveAparecer ? 'SIM' : 'NÃO'}`);
+      
+      return deveAparecer;
+    }
+
+    // Se não tem dias específicos configurados, NÃO aparecer (tarefa recorrente deve ter dias configurados)
+    console.log(`❌ Sem dias específicos configurados`);
+    return false;
   }
 
   gerarTarefasRecorrentesParaDia(data: Date): Tarefa[] {
@@ -341,7 +533,11 @@ export class CalendarioTarefasComponent implements OnInit, OnChanges {
   }
 
   criarTarefaRapida(): void {
+    console.log('🚀 criarTarefaRapida chamado');
+    
     if (this.novaTarefa.titulo.trim()) {
+      console.log('📝 Criando tarefa:', this.novaTarefa.titulo);
+      
       const tarefaData: any = {
         titulo: this.novaTarefa.titulo,
         descricao: this.novaTarefa.descricao,
@@ -359,11 +555,17 @@ export class CalendarioTarefasComponent implements OnInit, OnChanges {
         tarefaData.dataVencimento = this.novaTarefa.dataVencimento + 'T00:00:00';
       }
 
+      console.log('📋 Dados da tarefa:', tarefaData);
+
       if (this.novaTarefa.isRecorrente) {
+        console.log('🔄 Criando tarefa RECORRENTE');
         this.criarTarefaRecorrente(tarefaData);
       } else {
+        console.log('📝 Criando tarefa SIMPLES');
         this.criarTarefaSimples(tarefaData);
       }
+    } else {
+      console.log('❌ Título vazio, não criando tarefa');
     }
   }
 
@@ -392,8 +594,11 @@ export class CalendarioTarefasComponent implements OnInit, OnChanges {
   }
 
   private criarTarefaRecorrente(tarefaData: any): void {
+    console.log('🚀 Enviando para backend:', tarefaData);
+    
     this.tarefaService.criarTarefaRecorrente(tarefaData).subscribe({
       next: (tarefas) => {
+        console.log('✅ Resposta do backend:', tarefas);
         Swal.fire({
           title: 'Criada!',
           text: 'Tarefa recorrente criada com sucesso.',
@@ -405,6 +610,7 @@ export class CalendarioTarefasComponent implements OnInit, OnChanges {
         this.fecharModalCriacao();
       },
       error: (error) => {
+        console.error('❌ Erro do backend:', error);
         Swal.fire({
           title: 'Erro!',
           text: error.error?.message || 'Erro ao criar tarefa recorrente.',
@@ -447,41 +653,21 @@ export class CalendarioTarefasComponent implements OnInit, OnChanges {
     });
   }
 
-  carregarTarefasDoMes(): void {
-    const primeiroDiaMes = new Date(this.mesAtual.getFullYear(), this.mesAtual.getMonth(), 1);
-    const ultimoDiaMes = new Date(this.mesAtual.getFullYear(), this.mesAtual.getMonth() + 1, 0);
-    
-    const inicio = primeiroDiaMes.toISOString();
-    const fim = ultimoDiaMes.toISOString();
-    
-    this.tarefaService.buscarComFiltros({
-      inicio: inicio,
-      fim: fim
-    }).subscribe({
-      next: (tarefas) => {
-        this.tarefas = tarefas;
-        this.gerarCalendario();
-      },
-      error: (error) => {
-        console.error('Erro ao carregar tarefas do mês:', error);
-      }
-    });
-  }
 
   mesAnterior(): void {
     this.mesAtual = new Date(this.mesAtual.getFullYear(), this.mesAtual.getMonth() - 1, 1);
-    this.carregarTarefasDoMes();
+    this.gerarCalendario();
   }
 
   proximoMes(): void {
     this.mesAtual = new Date(this.mesAtual.getFullYear(), this.mesAtual.getMonth() + 1, 1);
-    this.carregarTarefasDoMes();
+    this.gerarCalendario();
   }
 
   irParaHoje(): void {
     this.mesAtual = new Date();
     this.dataSelecionada = new Date();
-    this.carregarTarefasDoMes();
+    this.gerarCalendario();
   }
 
   obterCorPrioridade(prioridade: PrioridadeTarefa): string {
