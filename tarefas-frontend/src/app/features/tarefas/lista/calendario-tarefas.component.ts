@@ -229,6 +229,12 @@ export class CalendarioTarefasComponent implements OnInit, OnChanges {
         i.tarefaRecorrenteId === tarefa.id && i.dataInstancia === dataStr
       );
       
+      console.log(`🔍 Verificando ${tarefa.titulo} para ${dataStr}:`, {
+        instanciaEncontrada: !!instancia,
+        instancia: instancia,
+        totalInstancias: this.instanciasRecorrentes.length
+      });
+      
       // Se existe instância, mostrar (independente do status)
       return instancia !== undefined;
     }
@@ -640,13 +646,17 @@ export class CalendarioTarefasComponent implements OnInit, OnChanges {
     const dataInicioStr = dataInicio.toISOString().split('T')[0];
     const dataFimStr = dataFim.toISOString().split('T')[0];
     
+    console.log('🔄 Carregando instâncias recorrentes:', dataInicioStr, 'até', dataFimStr);
+    
     this.tarefaService.buscarInstanciasRecorrentes(dataInicioStr, dataFimStr).subscribe({
       next: (instancias) => {
+        console.log('📋 Instâncias carregadas:', instancias.length);
+        console.log('📋 Instâncias:', instancias);
         this.instanciasRecorrentes = instancias;
         this.gerarCalendario();
       },
       error: (error) => {
-        console.error('Erro ao carregar instâncias recorrentes:', error);
+        console.error('❌ Erro ao carregar instâncias recorrentes:', error);
       }
     });
   }
@@ -654,16 +664,23 @@ export class CalendarioTarefasComponent implements OnInit, OnChanges {
   marcarComoConcluidaNoDia(tarefa: Tarefa, data: Date, event: Event): void {
     event.stopPropagation(); // Evitar abrir o modal de detalhes
     
+    console.log('🎯 Marcando como concluída:', tarefa.titulo, 'Data:', data.toISOString().split('T')[0]);
+    console.log('🔄 É recorrente?', tarefa.isRecorrente);
+    
     // Para tarefas recorrentes, marcar esta instância específica
     if (tarefa.isRecorrente) {
       const dataStr = data.toISOString().split('T')[0];
+      console.log('📅 Data da instância:', dataStr);
       
       this.tarefaService.marcarInstanciaComoConcluida(tarefa.id, dataStr).subscribe({
         next: (instancia) => {
+          console.log('✅ Instância marcada como concluída:', instancia);
+          
           // Atualizar a instância na lista local
           const index = this.instanciasRecorrentes.findIndex(i => i.id === instancia.id);
           if (index >= 0) {
             this.instanciasRecorrentes[index] = instancia;
+            console.log('📝 Instância atualizada na lista local');
           }
           
           Swal.fire({
@@ -678,6 +695,7 @@ export class CalendarioTarefasComponent implements OnInit, OnChanges {
           this.gerarCalendario();
         },
         error: (error) => {
+          console.error('❌ Erro ao marcar instância:', error);
           Swal.fire({
             title: 'Erro!',
             text: 'Erro ao marcar tarefa como concluída.',
@@ -688,6 +706,7 @@ export class CalendarioTarefasComponent implements OnInit, OnChanges {
       });
     } else {
       // Para tarefas normais, usar o método existente
+      console.log('📝 Tarefa normal - usando método padrão');
       this.marcarComoConcluida(tarefa);
     }
   }
