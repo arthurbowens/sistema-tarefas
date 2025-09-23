@@ -1,9 +1,19 @@
 {
-  "outputDirectory": "dist/tarefas-frontend/browser",
+  "version": 2,
+  "builds": [
+    {
+      "src": "package.json",
+      "use": "@vercel/static-build",
+      "config": {
+        "distDir": "dist/tarefas-frontend/browser"
+      }
+    }
+  ],
   "routes": [
     {
       "src": "/(.*)",
       "dest": "/index.html"
     }
-  ]
+  ],
+  "buildCommand": "./vercel-build.sh"
 }
