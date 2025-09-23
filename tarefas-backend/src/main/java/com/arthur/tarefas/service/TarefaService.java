@@ -279,6 +279,13 @@ public class TarefaService {
                 .map(this::converterParaDTO)
                 .collect(Collectors.toList()));
         
+        // Campos de recorrência
+        dto.setIsRecorrente(tarefa.getIsRecorrente());
+        dto.setTipoRecorrencia(tarefa.getTipoRecorrencia());
+        dto.setIntervaloRecorrencia(tarefa.getIntervaloRecorrencia());
+        dto.setDataFimRecorrencia(tarefa.getDataFimRecorrencia());
+        dto.setDiasDaSemana(tarefa.getDiasDaSemana());
+        
         return dto;
     }
 }
