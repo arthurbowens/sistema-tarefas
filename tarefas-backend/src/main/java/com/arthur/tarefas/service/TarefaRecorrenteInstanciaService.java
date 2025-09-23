@@ -94,7 +94,12 @@ public class TarefaRecorrenteInstanciaService {
                 if (tarefa.getDiasDaSemana() == null || tarefa.getDiasDaSemana().isEmpty()) {
                     return false;
                 }
-                DiaSemana diaSemana = DiaSemana.values()[data.getDayOfWeek().getValue() % 7];
+                // Converter DayOfWeek (1-7) para DiaSemana (0-6)
+                // Java: 1=Segunda, 2=Terça, ..., 7=Domingo
+                // Enum: 0=Domingo, 1=Segunda, ..., 6=Sábado
+                int diaJava = data.getDayOfWeek().getValue();
+                int diaEnum = (diaJava == 7) ? 0 : diaJava; // Domingo: 7->0, outros: 1->1, 2->2, etc.
+                DiaSemana diaSemana = DiaSemana.values()[diaEnum];
                 return tarefa.getDiasDaSemana().contains(diaSemana);
             case MENSAL:
                 // Implementar lógica para recorrência mensal
