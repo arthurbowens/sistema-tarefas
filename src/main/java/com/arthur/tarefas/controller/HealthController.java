@@ -26,7 +26,7 @@ public class HealthController {
     @GetMapping("/")
     public ResponseEntity<Map<String, Object>> root() {
         Map<String, Object> response = new HashMap<>();
-        response.put("message", "Sistema de Tarefas API está funcionando!");
+        response.put("message", "Sistema de Tarefas API está funcionando! (v1.0.1)");
         response.put("timestamp", LocalDateTime.now());
         response.put("endpoints", Map.of(
             "health", "/api/public/health",
