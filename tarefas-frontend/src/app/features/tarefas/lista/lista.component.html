@@ -35,6 +35,7 @@
     <!-- Visualização do Calendário -->
     <div *ngIf="visualizacaoAtual === 'calendario'" class="mb-6">
       <app-calendario-tarefas
+        #calendarioRef
         [tarefas]="tarefas"
         [dataSelecionada]="dataSelecionada"
         (diaSelecionado)="onDiaSelecionado($event)"

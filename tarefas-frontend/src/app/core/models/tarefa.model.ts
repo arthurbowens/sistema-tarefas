@@ -33,6 +33,7 @@ export interface Tarefa {
   prioridade: PrioridadeTarefa;
   categoria?: CategoriaTarefa;
   dataCriacao: string;
+  dataInicio?: string; // Nova: quando a tarefa deve começar a aparecer
   dataVencimento?: string;
   dataConclusao?: string;
   dataAtualizacao: string;

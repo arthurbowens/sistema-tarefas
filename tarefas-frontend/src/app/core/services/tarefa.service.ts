@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Tarefa, StatusTarefa, PrioridadeTarefa, CategoriaTarefa, ChecklistItem, CompartilhamentoTarefa, Estatisticas, TipoRecorrencia, DiaSemana } from '../models/tarefa.model';
+import { TarefaRecorrenteInstancia } from '../models/tarefa-recorrente-instancia.model';
 import { Usuario } from '../models/usuario.model';
 import { environment } from '../../../environments/environment';
 
@@ -168,6 +169,21 @@ export class TarefaService {
   buscarUsuariosPorEmail(email: string): Observable<Usuario[]> {
     const params = new HttpParams().set('email', email);
     return this.http.get<Usuario[]>(`${this.API_URL}/auth/usuarios/buscar`, { params });
+  }
+
+  // Instâncias de tarefas recorrentes
+  buscarInstanciasRecorrentes(dataInicio: string, dataFim: string): Observable<TarefaRecorrenteInstancia[]> {
+    const params = new HttpParams()
+      .set('dataInicio', dataInicio)
+      .set('dataFim', dataFim);
+    return this.http.get<TarefaRecorrenteInstancia[]>(`${this.API_URL}/tarefas-recorrentes/instancias`, { params });
+  }
+
+  marcarInstanciaComoConcluida(tarefaId: number, dataInstancia: string): Observable<TarefaRecorrenteInstancia> {
+    return this.http.post<TarefaRecorrenteInstancia>(
+      `${this.API_URL}/tarefas-recorrentes/${tarefaId}/instancias/${dataInstancia}/concluir`, 
+      {}
+    );
   }
 
 }

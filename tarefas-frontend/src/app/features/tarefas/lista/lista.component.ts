@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
@@ -15,6 +15,8 @@ import Swal from 'sweetalert2';
   styleUrls: ['./lista.component.scss']
 })
 export class ListaComponent implements OnInit {
+  @ViewChild('calendarioRef') calendarioRef: any;
+  
   tarefas: Tarefa[] = [];
   isLoading = true;
   filtroStatus: StatusTarefa | null = null;
@@ -47,8 +49,15 @@ export class ListaComponent implements OnInit {
     this.isLoading = true;
     this.tarefaService.listarTarefas().subscribe({
       next: (tarefas) => {
-        this.tarefas = tarefas;
+        this.tarefas = [...tarefas]; // Criar nova referência para disparar ngOnChanges
         this.isLoading = false;
+        
+        // Regenerar calendário se estiver na visualização de calendário
+        if (this.visualizacaoAtual === 'calendario' && this.calendarioRef) {
+          setTimeout(() => {
+            this.calendarioRef.regenerarCalendario();
+          }, 100);
+        }
       },
       error: () => {
         this.isLoading = false;

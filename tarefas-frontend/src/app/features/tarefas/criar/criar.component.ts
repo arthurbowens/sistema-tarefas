@@ -26,6 +26,7 @@ export class CriarComponent implements OnInit {
     descricao: '',
     prioridade: PrioridadeTarefa.MEDIA,
     categoria: null as CategoriaTarefa | null,
+    dataInicio: '', // Nova: data de início
     dataVencimento: '',
     isRecorrente: false,
     tipoRecorrencia: TipoRecorrencia.SEMANAL,
@@ -136,9 +137,14 @@ export class CriarComponent implements OnInit {
           ? this.novaTarefa.diasDaSemana : undefined
       };
 
+      // Adicionar data de início se foi preenchida
+      if (this.novaTarefa.dataInicio && this.novaTarefa.dataInicio.trim()) {
+        tarefaData.dataInicio = this.novaTarefa.dataInicio + 'T00:00:00';
+      }
+
       // Só adicionar data de vencimento se foi preenchida
       if (this.novaTarefa.dataVencimento && this.novaTarefa.dataVencimento.trim()) {
-        tarefaData.dataVencimento = this.novaTarefa.dataVencimento + 'T08:00:00';
+        tarefaData.dataVencimento = this.novaTarefa.dataVencimento + 'T23:59:59';
       }
 
       // Adicionar data de fim da recorrência se foi preenchida

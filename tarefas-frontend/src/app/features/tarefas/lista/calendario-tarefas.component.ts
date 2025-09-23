@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Tarefa, StatusTarefa, PrioridadeTarefa, TipoRecorrencia, DiaSemana, CategoriaTarefa, CompartilhamentoTarefa } from '../../../core/models/tarefa.model';
+import { TarefaRecorrenteInstancia } from '../../../core/models/tarefa-recorrente-instancia.model';
 import { TarefaService } from '../../../core/services/tarefa.service';
 import { CompartilharTarefaComponent } from '../../compartilhamento/components/compartilhar-tarefa/compartilhar-tarefa.component';
 import Swal from 'sweetalert2';
@@ -37,6 +38,9 @@ export class CalendarioTarefasComponent implements OnInit, OnChanges {
   tarefasDoDia: Tarefa[] = [];
   mostrarModalCompartilhamento = false;
   tarefaParaCompartilhar: Tarefa | null = null;
+  
+  // Instâncias de tarefas recorrentes
+  instanciasRecorrentes: TarefaRecorrenteInstancia[] = [];
   novaTarefa = {
     titulo: '',
     descricao: '',
@@ -80,6 +84,7 @@ export class CalendarioTarefasComponent implements OnInit, OnChanges {
   ) {}
 
   ngOnInit(): void {
+    this.carregarInstanciasRecorrentes();
     this.gerarCalendario();
     this.carregarCategorias();
     // Remover carregarTarefasDoMes() - as tarefas já vêm do componente pai
@@ -217,7 +222,18 @@ export class CalendarioTarefasComponent implements OnInit, OnChanges {
   }
 
   tarefaDeveAparecerNoDia(tarefa: Tarefa, data: Date): boolean {
-    // Se a tarefa já foi concluída, não aparece mais
+    // Para tarefas recorrentes, verificar se existe instância para esta data
+    if (tarefa.isRecorrente) {
+      const dataStr = data.toISOString().split('T')[0];
+      const instancia = this.instanciasRecorrentes.find(i => 
+        i.tarefaRecorrenteId === tarefa.id && i.dataInstancia === dataStr
+      );
+      
+      // Se existe instância, mostrar (independente do status)
+      return instancia !== undefined;
+    }
+
+    // Para tarefas normais, verificar status global
     if (tarefa.status === StatusTarefa.CONCLUIDA) {
       return false;
     }
@@ -225,19 +241,6 @@ export class CalendarioTarefasComponent implements OnInit, OnChanges {
     // Se a tarefa foi cancelada, não aparece
     if (tarefa.status === StatusTarefa.CANCELADA) {
       return false;
-    }
-
-    // Para tarefas recorrentes, usar lógica específica
-    if (tarefa.isRecorrente) {
-      console.log(`🔍 Tarefa RECORRENTE: ${tarefa.titulo}`);
-      console.log(`📅 Data: ${data.toDateString()}`);
-      console.log(`📋 Dados da tarefa:`, {
-        isRecorrente: tarefa.isRecorrente,
-        tipoRecorrencia: tarefa.tipoRecorrencia,
-        diasDaSemana: tarefa.diasDaSemana,
-        dataCriacao: tarefa.dataCriacao
-      });
-      return this.tarefaRecorrenteDeveAparecerNoDia(tarefa, data);
     }
 
     // Para tarefas não recorrentes
@@ -630,6 +633,76 @@ export class CalendarioTarefasComponent implements OnInit, OnChanges {
     }
   }
 
+  private carregarInstanciasRecorrentes(): void {
+    const dataInicio = new Date(this.mesAtual.getFullYear(), this.mesAtual.getMonth(), 1);
+    const dataFim = new Date(this.mesAtual.getFullYear(), this.mesAtual.getMonth() + 1, 0);
+    
+    const dataInicioStr = dataInicio.toISOString().split('T')[0];
+    const dataFimStr = dataFim.toISOString().split('T')[0];
+    
+    this.tarefaService.buscarInstanciasRecorrentes(dataInicioStr, dataFimStr).subscribe({
+      next: (instancias) => {
+        this.instanciasRecorrentes = instancias;
+        this.gerarCalendario();
+      },
+      error: (error) => {
+        console.error('Erro ao carregar instâncias recorrentes:', error);
+      }
+    });
+  }
+
+  marcarComoConcluidaNoDia(tarefa: Tarefa, data: Date, event: Event): void {
+    event.stopPropagation(); // Evitar abrir o modal de detalhes
+    
+    // Para tarefas recorrentes, marcar esta instância específica
+    if (tarefa.isRecorrente) {
+      const dataStr = data.toISOString().split('T')[0];
+      
+      this.tarefaService.marcarInstanciaComoConcluida(tarefa.id, dataStr).subscribe({
+        next: (instancia) => {
+          // Atualizar a instância na lista local
+          const index = this.instanciasRecorrentes.findIndex(i => i.id === instancia.id);
+          if (index >= 0) {
+            this.instanciasRecorrentes[index] = instancia;
+          }
+          
+          Swal.fire({
+            title: 'Concluída!',
+            text: 'Tarefa recorrente marcada como concluída para este dia.',
+            icon: 'success',
+            timer: 1500,
+            showConfirmButton: false
+          });
+          
+          // Atualizar visualização
+          this.gerarCalendario();
+        },
+        error: (error) => {
+          Swal.fire({
+            title: 'Erro!',
+            text: 'Erro ao marcar tarefa como concluída.',
+            icon: 'error',
+            confirmButtonText: 'OK'
+          });
+        }
+      });
+    } else {
+      // Para tarefas normais, usar o método existente
+      this.marcarComoConcluida(tarefa);
+    }
+  }
+
+  tarefaConcluidaHoje(tarefa: Tarefa, data: Date): boolean {
+    if (tarefa.isRecorrente) {
+      const dataStr = data.toISOString().split('T')[0];
+      const instancia = this.instanciasRecorrentes.find(i => 
+        i.tarefaRecorrenteId === tarefa.id && i.dataInstancia === dataStr
+      );
+      return instancia ? instancia.status === 'CONCLUIDA' : false;
+    }
+    return tarefa.status === StatusTarefa.CONCLUIDA;
+  }
+
   isDiaSelecionado(dia: DiaSemana): boolean {
     return this.novaTarefa.diasDaSemana.includes(dia);
   }
@@ -656,18 +729,18 @@ export class CalendarioTarefasComponent implements OnInit, OnChanges {
 
   mesAnterior(): void {
     this.mesAtual = new Date(this.mesAtual.getFullYear(), this.mesAtual.getMonth() - 1, 1);
-    this.gerarCalendario();
+    this.carregarInstanciasRecorrentes();
   }
 
   proximoMes(): void {
     this.mesAtual = new Date(this.mesAtual.getFullYear(), this.mesAtual.getMonth() + 1, 1);
-    this.gerarCalendario();
+    this.carregarInstanciasRecorrentes();
   }
 
   irParaHoje(): void {
     this.mesAtual = new Date();
     this.dataSelecionada = new Date();
-    this.gerarCalendario();
+    this.carregarInstanciasRecorrentes();
   }
 
   obterCorPrioridade(prioridade: PrioridadeTarefa): string {
@@ -771,6 +844,7 @@ export class CalendarioTarefasComponent implements OnInit, OnChanges {
 
 
   marcarComoConcluida(tarefa: Tarefa): void {
+    // Para tarefas normais, marcar como concluída no backend
     this.tarefaService.marcarComoConcluida(tarefa.id).subscribe({
       next: () => {
         tarefa.status = StatusTarefa.CONCLUIDA;

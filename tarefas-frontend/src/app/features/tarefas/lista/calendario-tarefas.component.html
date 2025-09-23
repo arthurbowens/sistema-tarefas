@@ -70,10 +70,48 @@
            (click)="visualizarTarefasDoDia(dia, $event)"
            class="cursor-pointer hover:bg-gray-50 rounded p-1">
         <div *ngFor="let tarefa of dia.tarefas.slice(0, 3); trackBy: trackByTarefa"
-             class="text-xs p-1.5 rounded border truncate"
+             class="text-xs p-1.5 rounded border truncate flex items-center justify-between group"
              [class]="obterCorStatus(tarefa.status)"
-             [title]="tarefa.titulo">
-          {{ tarefa.titulo }}
+             [class.opacity-50]="tarefaConcluidaHoje(tarefa, dia.data)"
+             [title]="obterTooltipTarefa(tarefa)">
+          <div class="flex-1 truncate flex items-center">
+            <!-- Ícone de check para tarefas concluídas -->
+            <svg *ngIf="tarefaConcluidaHoje(tarefa, dia.data)" 
+                 class="w-3 h-3 text-green-600 mr-1 flex-shrink-0" 
+                 fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+            </svg>
+            
+            <div class="flex-1 truncate">
+              <div class="font-medium" [class.line-through]="tarefaConcluidaHoje(tarefa, dia.data)">{{ tarefa.titulo }}</div>
+              <div *ngIf="tarefa.dataInicio" class="text-xs opacity-75">
+                Início: {{ tarefa.dataInicio | date:'dd/MM' }}
+              </div>
+            </div>
+          </div>
+          
+          <!-- Botões de ação -->
+          <div class="flex items-center space-x-1 ml-1 opacity-0 group-hover:opacity-100 transition-opacity">
+            <!-- Botão para marcar como concluída -->
+            <button *ngIf="tarefa.status !== 'CONCLUIDA' && !tarefaConcluidaHoje(tarefa, dia.data)"
+                    (click)="marcarComoConcluidaNoDia(tarefa, dia.data, $event)"
+                    class="text-green-600 hover:text-green-800 transition-colors"
+                    title="Marcar como concluída">
+              <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+              </svg>
+            </button>
+            
+            <!-- Botão para remover tarefa vencida -->
+            <button *ngIf="tarefaVencida(tarefa, dia.data)"
+                    (click)="removerTarefaVencida(tarefa, $event)"
+                    class="text-red-600 hover:text-red-800 transition-colors"
+                    title="Remover tarefa vencida">
+              <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+              </svg>
+            </button>
+          </div>
         </div>
         
         <!-- Indicador de mais tarefas -->
@@ -308,6 +346,9 @@
               
               <div class="flex items-center space-x-4 text-xs text-gray-500">
                 <span *ngIf="tarefa.categoria">{{ tarefa.categoria }}</span>
+                <span *ngIf="tarefa.dataInicio" class="text-green-600">
+                  Início: {{ tarefa.dataInicio | date:'dd/MM/yyyy' }}
+                </span>
                 <span *ngIf="tarefa.dataVencimento">
                   Vence: {{ tarefa.dataVencimento | date:'dd/MM/yyyy HH:mm' }}
                 </span>
