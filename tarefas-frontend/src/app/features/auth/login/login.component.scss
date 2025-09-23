@@ -1,1 +1,30 @@
-// Estilos específicos do componente de login
+// Estilos específicos do componente de login - Design Clean
+
+// Efeito hover sutil nos inputs
+input:hover {
+  border-color: #93c5fd;
+}
+
+// Efeito de foco nos inputs
+input:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+// Efeito de hover no botão
+button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+// Efeito de loading no botão
+button:disabled {
+  transform: none !important;
+}
+
+// Responsividade
+@media (max-width: 640px) {
+  input {
+    font-size: 16px; // Evita zoom no iOS
+  }
+}
